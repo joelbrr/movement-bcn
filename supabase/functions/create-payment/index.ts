@@ -41,7 +41,8 @@ serve(async (req) => {
       pacienteEmail,
       pacienteTel,
       nota,
-      usuarioId, // null si reserva como invitado
+      usuarioId,
+      metodoPago, // 'stripe' (default) o 'local'
     } = body;
 
     // 1. Validar campos obligatorios
@@ -83,8 +84,46 @@ serve(async (req) => {
       );
     }
 
-    // 4. Crear PaymentIntent en Stripe
+    const ref = "MLB-" + Date.now().toString(36).toUpperCase().slice(-6);
     const importeCentimos = Math.round(Number(servicio.precio) * 100);
+
+    // --- FLUJO PAGO EN LOCAL ---
+    if (metodoPago === "local") {
+      const { data: cita, error: citaErr } = await supabase
+        .from("citas")
+        .insert({
+          ref,
+          usuario_id: usuarioId || null,
+          prof_id: profId,
+          servicio_id: servicioId,
+          fecha,
+          hora,
+          hora_fin: horaFin,
+          dur_min: durMin ?? 60,
+          estado: "confirmada", // Se confirma directamente
+          paciente_nombre: pacienteNombre,
+          paciente_email: pacienteEmail,
+          paciente_tel: pacienteTel || null,
+          nota: (nota ? nota + "\n" : "") + "[PAGO EN LOCAL]",
+        })
+        .select()
+        .single();
+
+      if (citaErr) throw new Error("Error creando cita local: " + citaErr.message);
+
+      return new Response(
+        JSON.stringify({
+          citaRef: ref,
+          importe: importeCentimos,
+          servicio: servicio.nombre,
+          metodo: "local",
+        }),
+        { status: 200, headers: { ...CORS, "Content-Type": "application/json" } }
+      );
+    }
+
+    // --- FLUJO STRIPE (EXISTENTE) ---
+    // 4. Crear PaymentIntent en Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount: importeCentimos,
       currency: "eur",
@@ -104,7 +143,6 @@ serve(async (req) => {
     });
 
     // 5. Crear cita en estado pendiente_pago (expira en 15 min si no se paga)
-    const ref = "MLB-" + Date.now().toString(36).toUpperCase().slice(-6);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
     const { data: cita, error: citaErr } = await supabase

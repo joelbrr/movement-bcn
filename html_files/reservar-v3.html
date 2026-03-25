@@ -1197,31 +1197,63 @@
     <!-- STEP 6: PAGO -->
     <div class="step-card" id="step-6">
       <div id="paymentFormArea">
-        <h2 class="step-title">Pago seguro</h2>
-        <p class="step-sub">Completa el pago para confirmar tu reserva. Tu cita quedará confirmada inmediatamente.</p>
+        <h2 class="step-title" id="paymentTitle">Pago seguro</h2>
+        <p class="step-sub" id="paymentSub">Completa el pago para confirmar tu reserva. Tu cita quedará confirmada
+          inmediatamente.</p>
         <div class="alert alert-error" id="err-6">Ha ocurrido un error procesando el pago. Por favor inténtalo de nuevo.
+        </div>
+
+        <!-- Selector de Método de Pago -->
+        <div class="payment-methods">
+          <label
+            style="display:block; font-size:.8rem; font-weight:600; color:var(--navy); margin-bottom:8px;">Selecciona
+            cómo quieres pagar:</label>
+          <div class="payment-method-tab">
+            <div class="pm-tab active" id="pm-stripe" onclick="setPaymentMethod('stripe')">
+              <span style="display:block; font-size:1.2rem; margin-bottom:4px;">💳</span>
+              Tarjeta
+            </div>
+            <div class="pm-tab" id="pm-local" onclick="setPaymentMethod('local')">
+              <span style="display:block; font-size:1.2rem; margin-bottom:4px;">🏠</span>
+              En el centro
+            </div>
+          </div>
         </div>
 
         <!-- Resumen de lo que se paga -->
         <div class="confirm-card" id="paymentSummary"></div>
 
-        <!-- Seguridad -->
-        <div class="payment-security">
-          <span style="font-size:1rem">🔒</span>
-          <p>Pago seguro procesado por Stripe. Tus datos bancarios nunca llegan a nuestros servidores.</p>
+        <!-- Sección Stripe -->
+        <div id="stripe-section">
+          <!-- Seguridad -->
+          <div class="payment-security">
+            <span style="font-size:1rem">🔒</span>
+            <p>Pago seguro procesado por Stripe. Tus datos bancarios nunca llegan a nuestros servidores.</p>
+          </div>
+
+          <!-- Stripe Elements -->
+          <div class="form-group" style="margin-bottom:20px">
+            <label>Datos de tarjeta</label>
+            <div id="stripe-elements-container">
+              <!-- Stripe Elements se monta aquí -->
+              <div id="payment-element"></div>
+            </div>
+            <div class="stripe-logo">
+              <span>Protegido por</span>
+              <span class="stripe-badge">Stripe</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Stripe Elements -->
-        <div class="form-group" style="margin-bottom:20px">
-          <label>Datos de tarjeta</label>
-          <div id="stripe-elements-container">
-            <!-- Stripe Elements se monta aquí -->
-            <div id="payment-element"></div>
+        <!-- Sección Local -->
+        <div id="local-section" style="display:none; margin-bottom:24px;">
+          <div class="payment-security" style="background:var(--teal-l); border-color:var(--teal);">
+            <span style="font-size:1rem">📍</span>
+            <p style="color:var(--teal)">Has seleccionado **Pago en el centro**. Podrás pagar con tarjeta o efectivo al
+              finalizar tu sesión.</p>
           </div>
-          <div class="stripe-logo">
-            <span>Protegido por</span>
-            <span class="stripe-badge">Stripe</span>
-          </div>
+          <p style="font-size:.88rem; color:var(--muted); text-align:center;">Al confirmar, bloquearemos tu horario en
+            nuestra agenda.</p>
         </div>
 
         <div class="alert alert-error" id="stripe-error"></div>
@@ -1417,6 +1449,7 @@
       step: 1, servicioId: null, profId: 'auto', fecha: null, hora: null, horaFin: null,
       calYear: null, calMonth: null,
       citaRef: null, clientSecret: null, importeCentimos: 0,
+      metodoPago: 'stripe'
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -1627,6 +1660,30 @@
 
     function selectSlot(hora, horaFin) { S.hora = hora; S.horaFin = horaFin; renderSlots(); }
 
+    // ── GESTIÓN DE PAGO ──
+    function setPaymentMethod(m) {
+      S.metodoPago = m;
+      document.getElementById('pm-stripe').classList.toggle('active', m === 'stripe');
+      document.getElementById('pm-local').classList.toggle('active', m === 'local');
+      document.getElementById('stripe-section').style.display = m === 'stripe' ? 'block' : 'none';
+      document.getElementById('local-section').style.display = m === 'local' ? 'block' : 'none';
+
+      const title = document.getElementById('paymentTitle');
+      const sub = document.getElementById('paymentSub');
+      const btnText = document.getElementById('payBtnText');
+
+      if (m === 'local') {
+        title.textContent = 'Confirmar reserva';
+        sub.textContent = 'Revisa los datos y confirma tu asistencia. Pagarás presencialmente en el centro.';
+        btnText.textContent = 'Confirmar cita';
+      } else {
+        title.textContent = 'Pago seguro';
+        sub.textContent = 'Completa el pago para confirmar tu reserva. Tu cita quedará confirmada inmediatamente.';
+        btnText.textContent = 'Pagar y confirmar cita';
+        if (!S.clientSecret) initPaymentStep(); // Cargar Stripe si no estaba cargado
+      }
+    }
+
     // ── STEP 6: Init payment ──
     async function initPaymentStep() {
       const servs = await DB.getServicios();
@@ -1696,10 +1753,16 @@
           return;
         }
 
-        const { clientSecret, citaRef, importe } = await resp.json();
+        const { clientSecret, citaRef, importe, metodo } = await resp.json();
         S.clientSecret = clientSecret;
         S.citaRef = citaRef;
         S.importeCentimos = importe;
+
+        if (metodo === 'local') {
+          // Si por alguna razón llamamos a initPaymentStep con local (no debería ser el flujo principal)
+          // pero lo manejamos por si acaso
+          return;
+        }
 
         mountStripeElements(clientSecret);
         document.getElementById('payBtn').disabled = false;
@@ -1735,7 +1798,7 @@
 
     // ── PROCESAR PAGO ──
     async function procesarPago() {
-      if (DB._isDemo()) return; // en demo ya se maneja en initPaymentStep
+      if (DB._isDemo()) return;
 
       const payBtn = document.getElementById('payBtn');
       const payBtnText = document.getElementById('payBtnText');
@@ -1743,25 +1806,78 @@
       const processing = document.getElementById('paymentProcessing');
 
       payBtn.disabled = true;
+
+      // FLUJO LOCAL
+      if (S.metodoPago === 'local') {
+        payBtnText.textContent = 'Confirmando...';
+        const nombre = document.getElementById('pNombre').value.trim();
+        const email = document.getElementById('pEmail').value.trim();
+        const tel = document.getElementById('pTel').value.trim();
+        const nota = document.getElementById('pNota').value.trim();
+        const { data: { session } } = await sbClient.auth.getSession();
+
+        let profId = S.profId;
+        if (profId === 'auto') {
+          profId = await AE.autoAssign(S.servicioId, S.fecha, S.hora);
+        }
+
+        try {
+          const resp = await fetch(`${CONFIG.EDGE_FUNCTIONS_URL}/create-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': session ? `Bearer ${session.access_token}` : '' },
+            body: JSON.stringify({
+              servicioId: S.servicioId,
+              profId,
+              fecha: S.fecha,
+              hora: S.hora,
+              horaFin: S.horaFin,
+              pacienteNombre: nombre,
+              pacienteEmail: email,
+              pacienteTel: tel,
+              nota: nota,
+              usuarioId: session?.user?.id,
+              metodoPago: 'local'
+            })
+          });
+
+          if (!resp.ok) throw new Error('Error al confirmar reserva local');
+
+          const data = await resp.json();
+          S.citaRef = data.citaRef;
+          S.importeCentimos = data.importe;
+          mostrarExito();
+
+        } catch (err) {
+          document.getElementById('err-6').textContent = 'No hemos podido confirmar tu cita. Inténtalo de nuevo.';
+          showErr('err-6');
+          payBtn.disabled = false;
+          payBtnText.textContent = 'Confirmar cita';
+        }
+        return;
+      }
+
+      // FLUJO STRIPE
       payBtnText.textContent = 'Procesando...';
+      formArea.style.display = 'none';
+      processing.style.display = 'block';
 
       const { error } = await stripeClient.confirmPayment({
         elements: stripeElements,
         confirmParams: {
           return_url: window.location.origin + '/reservar.html?success=1',
         },
-        redirect: 'if_required', // no redirigir si no es necesario (mayoría de tarjetas)
+        redirect: 'if_required',
       });
 
       if (error) {
+        formArea.style.display = 'block';
+        processing.style.display = 'none';
         const stripeErr = document.getElementById('stripe-error');
         stripeErr.textContent = error.message || 'Ha ocurrido un error con el pago.';
         stripeErr.classList.add('show');
         payBtn.disabled = false;
         payBtnText.textContent = 'Pagar y confirmar cita';
       } else {
-        // Pago exitoso — el webhook se encargará de confirmar la cita en DB
-        // Mostrar pantalla de éxito
         formArea.style.display = 'none';
         processing.style.display = 'none';
         mostrarExito();
@@ -1773,7 +1889,12 @@
       document.getElementById('step-success').classList.add('active');
       document.getElementById('bookingRef').textContent = S.citaRef || 'MLB-DEMO';
       const pEmail = document.getElementById('pEmail').value;
-      document.getElementById('emailNote').textContent = `Te hemos enviado la confirmación a ${pEmail}. Recibirás un recordatorio 24h antes de tu cita.`;
+
+      const msg = S.metodoPago === 'local'
+        ? `Tu cita ha sido bloqueada en nuestra agenda. Te hemos enviado los detalles a ${pEmail}.`
+        : `Te hemos enviado la confirmación a ${pEmail}. Recibirás un recordatorio 24h antes de tu cita.`;
+
+      document.getElementById('emailNote').textContent = msg;
 
       const servs = await DB.getServicios();
       const profs = await DB.getProfesionales();
@@ -1782,12 +1903,15 @@
       const dateObj = new Date(S.fecha + 'T12:00:00');
       const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+      const labelImporte = S.metodoPago === 'local' ? 'Importe a pagar en centro' : 'Importe pagado';
+
       document.getElementById('successSummary').innerHTML = `
     <div class="ss-row"><span class="ss-label">Servicio</span><span class="ss-val">${serv ? serv.nombre : ''}</span></div>
     <div class="ss-row"><span class="ss-label">Profesional</span><span class="ss-val">${prof.nombre}</span></div>
     <div class="ss-row"><span class="ss-label">Fecha</span><span class="ss-val">${dias[dateObj.getDay()]} ${dateObj.getDate()} de ${meses[dateObj.getMonth()]}</span></div>
     <div class="ss-row"><span class="ss-label">Hora</span><span class="ss-val">${S.hora} – ${S.horaFin}</span></div>
-    <div class="ss-row"><span class="ss-label">Importe pagado</span><span class="ss-val">${(S.importeCentimos / 100).toFixed(2)} €</span></div>`;
+    <div class="ss-row"><span class="ss-label">${labelImporte}</span><span class="ss-val">${(S.importeCentimos / 100).toFixed(2)} €</span></div>`;
     }
 
     // ── DEMO MODE: simular pago sin backend ──
