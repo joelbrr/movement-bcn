@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi cuenta · Movement Lab Bcn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0B2240;--blue:#1A4F8A;--blue-m:#2A6BB5;
+      --teal:#1A8C6E;--teal-l:#E8F5F1;--teal-ll:#F2FAF7;
+      --sky:#EAF4FB;--off:#F7F8FA;--white:#FFFFFF;
+      --ink:#111827;--muted:#6B7280;--border:#E5E8EF;
+      --accent:#F4A024;--danger:#DC2626;--danger-l:#FEF2F2;
+      --serif:'DM Serif Display',Georgia,serif;
+      --sans:'DM Sans',system-ui,sans-serif;
+      --r-sm:8px;--r-md:14px;--r-lg:20px;
+      --shadow:0 2px 16px rgba(11,34,64,.08);
+    }
+    html{font-size:16px}
+    body{font-family:var(--sans);color:var(--ink);background:var(--off);min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+    button{font-family:var(--sans);cursor:pointer;border:none;outline:none}
+
+    .top-nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .top-nav-inner{max-width:760px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{display:flex;align-items:center;gap:9px}
+    .nav-logo-icon{width:32px;height:32px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .nav-logo-icon svg{width:17px;height:17px}
+    .nav-logo-name{font-family:var(--serif);font-size:1.1rem;color:var(--navy)}
+
+    .page-wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+
+    /* ── AUTH SCREENS ── */
+    .auth-card{background:var(--white);border-radius:var(--r-lg);padding:36px 32px;box-shadow:var(--shadow);max-width:420px;margin:0 auto}
+    .auth-title{font-family:var(--serif);font-size:1.6rem;color:var(--navy);margin-bottom:6px}
+    .auth-sub{font-size:.88rem;color:var(--muted);margin-bottom:28px}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:5px}
+    .form-group input{width:100%;padding:11px 14px;font-family:var(--sans);font-size:.9rem;color:var(--ink);background:var(--off);border:1.5px solid var(--border);border-radius:var(--r-sm);outline:none;transition:border-color .2s}
+    .form-group input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,140,110,.12);background:var(--white)}
+    .btn-full{width:100%;padding:13px;background:var(--teal);color:#fff;border-radius:var(--r-md);font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;border:none}
+    .btn-full:hover{background:#157a5e}
+    .btn-full:disabled{background:var(--border);color:var(--muted);cursor:not-allowed}
+    .auth-switch{margin-top:16px;text-align:center;font-size:.82rem;color:var(--muted)}
+    .auth-switch a{color:var(--teal);cursor:pointer;font-weight:600}
+    .alert{padding:10px 14px;border-radius:var(--r-sm);font-size:.82rem;margin-bottom:14px;display:none}
+    .alert.show{display:block}
+    .alert-error{background:var(--danger-l);border:1px solid #FECACA;color:#991B1B}
+    .alert-ok{background:var(--teal-l);border:1px solid #9FE1CB;color:#085041}
+    .magic-info{background:var(--sky);border:1px solid #BAE0F7;border-radius:var(--r-sm);padding:14px 16px;font-size:.85rem;color:var(--blue);margin-top:14px;display:none}
+    .magic-info.show{display:block}
+    .divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:.8rem}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* ── ACCOUNT SCREEN ── */
+    .account-header{background:var(--white);border-radius:var(--r-lg);padding:24px 28px;box-shadow:var(--shadow);margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .account-user{display:flex;align-items:center;gap:14px}
+    .account-avatar{width:52px;height:52px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:1.3rem;flex-shrink:0}
+    .account-name{font-weight:600;color:var(--navy);font-size:1rem}
+    .account-email{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .btn-outline{padding:8px 18px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:.82rem;font-weight:600;color:var(--navy);background:var(--white);cursor:pointer;transition:all .2s}
+    .btn-outline:hover{border-color:var(--navy)}
+    .btn-primary{padding:10px 20px;background:var(--teal);color:#fff;border-radius:var(--r-md);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;border:none}
+    .btn-primary:hover{background:#157a5e}
+
+    .section-title{font-family:var(--serif);font-size:1.2rem;color:var(--navy);margin-bottom:16px}
+    .cita-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-md);padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:14px;transition:box-shadow .2s}
+    .cita-card:hover{box-shadow:var(--shadow)}
+    .cita-color{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0}
+    .cita-main{flex:1;min-width:0}
+    .cita-servicio{font-weight:600;font-size:.95rem;color:var(--navy);margin-bottom:3px}
+    .cita-meta{font-size:.8rem;color:var(--muted)}
+    .cita-ref{font-family:monospace;font-size:.72rem;color:var(--muted);margin-top:2px}
+    .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:600}
+    .badge-ok{background:var(--teal-l);color:var(--teal)}
+    .badge-done{background:var(--off);color:var(--muted)}
+    .badge-cancel{background:var(--danger-l);color:var(--danger)}
+    .badge-pending{background:#FFF7ED;color:#C2410C}
+    .cita-actions{display:flex;gap:8px;flex-shrink:0}
+    .btn-sm{padding:5px 12px;border-radius:6px;font-size:.75rem;font-weight:600;transition:all .2s;cursor:pointer;border:none}
+    .btn-cancel-sm{background:var(--danger-l);color:var(--danger);border:1px solid #FECACA}
+    .btn-cancel-sm:hover{background:#FECACA}
+    .empty-state{text-align:center;padding:48px 20px;color:var(--muted);background:var(--white);border-radius:var(--r-lg);border:1px dashed var(--border)}
+    .empty-icon{font-size:2.5rem;margin-bottom:12px}
+    .empty-state strong{display:block;color:var(--navy);margin-bottom:6px}
+    .tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+    .tab{padding:10px 18px;font-size:.88rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+    .tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+    .tab:hover:not(.active){color:var(--navy)}
+    .profile-form{background:var(--white);border-radius:var(--r-lg);padding:24px 28px;box-shadow:var(--shadow)}
+    .profile-form h3{font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+    @media(max-width:600px){
+      .account-header{flex-direction:column;align-items:flex-start}
+      .form-row-2{grid-template-columns:1fr}
+      .auth-card{padding:24px 18px}
+      .cita-actions{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>
+      </div>
+      <span class="nav-logo-name">Movement Lab Bcn</span>
+    </a>
+    <a href="index.html" style="font-size:.85rem;color:var(--muted)">← Volver a la web</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <div class="auth-card">
+      <h2 class="auth-title">Mi cuenta</h2>
+      <p class="auth-sub">Inicia sesión para ver y gestionar tus citas.</p>
+
+      <div class="alert alert-error" id="loginErr"></div>
+      <div class="magic-info" id="magicInfo">
+        Te hemos enviado un enlace mágico a tu email. Haz clic en él para entrar sin contraseña.
+      </div>
+
+      <!-- Magic link (recomendado — sin contraseña) -->
+      <div id="magicForm">
+        <div class="form-group">
+          <label>Tu email</label>
+          <input type="email" id="magicEmail" placeholder="tu@email.com" onkeydown="if(event.key==='Enter')sendMagicLink()">
+        </div>
+        <button class="btn-full" id="magicBtn" onclick="sendMagicLink()">Entrar con enlace mágico</button>
+        <p style="font-size:.75rem;color:var(--muted);margin-top:8px;text-align:center">Sin contraseña. Te enviamos un enlace a tu email.</p>
+      </div>
+
+      <div class="divider">o con contraseña</div>
+
+      <!-- Email + password -->
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-full" id="loginBtn" onclick="doLogin()">Iniciar sesión</button>
+
+      <div class="auth-switch">¿No tienes cuenta? <a onclick="showRegister()">Regístrate gratis</a></div>
+    </div>
+  </div>
+
+  <!-- REGISTER SCREEN -->
+  <div id="registerScreen" style="display:none">
+    <div class="auth-card">
+      <h2 class="auth-title">Crear cuenta</h2>
+      <p class="auth-sub">Guarda tus citas y accede a tu historial fácilmente.</p>
+      <div class="alert alert-error" id="regErr"></div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Nombre *</label><input type="text" id="regNombre" placeholder="Tu nombre"></div>
+        <div class="form-group"><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido"></div>
+      </div>
+      <div class="form-group"><label>Email *</label><input type="email" id="regEmail" placeholder="tu@email.com"></div>
+      <div class="form-group"><label>Teléfono</label><input type="tel" id="regTel" placeholder="600 000 000"></div>
+      <div class="form-group"><label>Contraseña * (mín. 6 caracteres)</label><input type="password" id="regPass" placeholder="••••••••"></div>
+      <button class="btn-full" id="regBtn" onclick="doRegister()">Crear cuenta</button>
+      <div class="auth-switch">¿Ya tienes cuenta? <a onclick="showLogin()">Inicia sesión</a></div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT SCREEN -->
+  <div id="accountScreen" style="display:none">
+
+    <div class="account-header">
+      <div class="account-user">
+        <div class="account-avatar" id="accountAvatar">?</div>
+        <div>
+          <div class="account-name" id="accountName">—</div>
+          <div class="account-email" id="accountEmail">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <a href="reservar.html" class="btn-primary">+ Nueva cita</a>
+        <button class="btn-outline" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('citas')">Mis citas</div>
+      <div class="tab" onclick="showTab('perfil')">Mi perfil</div>
+    </div>
+
+    <!-- TAB CITAS -->
+    <div id="tab-citas">
+      <div class="alert alert-ok" id="cancelOk" style="display:none">Cita cancelada correctamente.</div>
+      <h3 class="section-title">Próximas citas</h3>
+      <div id="upcomingCitas"></div>
+      <h3 class="section-title" style="margin-top:28px">Historial</h3>
+      <div id="pastCitas"></div>
+    </div>
+
+    <!-- TAB PERFIL -->
+    <div id="tab-perfil" style="display:none">
+      <div class="profile-form">
+        <h3>Datos personales</h3>
+        <div class="alert alert-ok" id="profileOk">Perfil actualizado.</div>
+        <div class="form-row-2">
+          <div class="form-group"><label>Nombre</label><input type="text" id="profNombre" placeholder="Tu nombre"></div>
+          <div class="form-group"><label>Teléfono</label><input type="tel" id="profTel" placeholder="600 000 000"></div>
+        </div>
+        <div class="form-group"><label>Email (no editable)</label><input type="email" id="profEmail" disabled style="opacity:.6"></div>
+        <button class="btn-primary" onclick="saveProfile()">Guardar cambios</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const CONFIG = {
+  SUPABASE_URL:      'https://TU_PROYECTO.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJ...',
+};
+
+const { createClient } = supabase;
+const sb = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+const isDemo = CONFIG.SUPABASE_URL.includes('TU_PROYECTO');
+
+// ── Redirect after auth ──
+const params = new URLSearchParams(window.location.search);
+const redirect = params.get('redirect') || null;
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', async () => {
+  if (isDemo) {
+    showDemoMode();
+    return;
+  }
+  // Check if this is a magic link callback
+  const hash = window.location.hash;
+  if (hash.includes('access_token') || hash.includes('error')) {
+    const { data, error } = await sb.auth.getSession();
+    if (data.session) {
+      if (redirect) { window.location.href = redirect + '.html'; return; }
+      await loadAccount(data.session);
+    }
+  } else {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await loadAccount(session);
+  }
+});
+
+// ── Demo mode notice ──
+function showDemoMode() {
+  document.getElementById('loginScreen').innerHTML=`
+    <div style="background:var(--sky);border:1.5px solid var(--blue-m);border-radius:var(--r-lg);padding:28px;max-width:480px;margin:0 auto">
+      <h3 style="color:var(--navy);margin-bottom:10px;font-family:var(--serif);font-size:1.3rem">Modo demo</h3>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.65;margin-bottom:16px">
+        La autenticación de usuarios requiere configurar Supabase.<br>
+        Sigue las instrucciones del archivo <strong>supabase-setup.sql</strong> y configura las variables en <strong>reservar-v3.html</strong> y <strong>mi-cuenta.html</strong>.
+      </p>
+      <p style="font-size:.82rem;color:var(--muted)">Las citas guardadas en modo demo se pueden ver en el panel interno (<code>admin.html</code>).</p>
+      <a href="index.html" class="btn-primary" style="display:inline-flex;margin-top:16px">← Volver a la web</a>
+    </div>`;
+}
+
+// ── Login con email/password ──
+async function doLogin() {
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if (!email||!pass) return;
+  setBtnLoading('loginBtn', true);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password:pass });
+  if (error) {
+    showAuthErr('loginErr', 'Email o contraseña incorrectos.');
+    setBtnLoading('loginBtn', false); return;
+  }
+  if (redirect) { window.location.href = redirect + '.html'; return; }
+  await loadAccount(data.session);
+}
+
+// ── Magic link ──
+async function sendMagicLink() {
+  const email=document.getElementById('magicEmail').value.trim();
+  if (!email||!email.includes('@')) { showAuthErr('loginErr','Introduce un email válido.'); return; }
+  setBtnLoading('magicBtn', true, 'Enviando...');
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  if (error) {
+    showAuthErr('loginErr', 'Error enviando el enlace. Inténtalo de nuevo.');
+    setBtnLoading('magicBtn', false, 'Entrar con enlace mágico');
+    return;
+  }
+  document.getElementById('magicInfo').classList.add('show');
+  document.getElementById('magicForm').style.opacity='0.5';
+  document.getElementById('magicForm').style.pointerEvents='none';
+}
+
+// ── Register ──
+async function doRegister() {
+  const nombre=document.getElementById('regNombre').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPass').value;
+  const tel=document.getElementById('regTel').value.trim();
+  if (!nombre||!email||!pass||pass.length<6) { showAuthErr('regErr','Completa todos los campos obligatorios (contraseña mín. 6 caracteres).'); return; }
+  setBtnLoading('regBtn', true, 'Creando cuenta...');
+  const { data, error } = await sb.auth.signUp({
+    email, password: pass,
+    options: { data: { nombre: nombre + ' ' + (document.getElementById('regApellido').value.trim()) } }
+  });
+  if (error) { showAuthErr('regErr', error.message); setBtnLoading('regBtn', false, 'Crear cuenta'); return; }
+  // Crear perfil
+  if (data.user) {
+    await sb.from('perfiles').upsert({ id: data.user.id, nombre, telefono: tel||null });
+  }
+  if (redirect) { window.location.href = redirect + '.html'; return; }
+  if (data.session) await loadAccount(data.session);
+  else showAuthErr('regErr', '¡Cuenta creada! Revisa tu email para confirmarla.');
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  document.getElementById('accountScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='block';
+}
+
+// ── Load account data ──
+async function loadAccount(session) {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='none';
+  document.getElementById('accountScreen').style.display='block';
+
+  const email = session.user.email || '';
+  const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+  const nombre = perfil?.nombre || email.split('@')[0] || 'Usuario';
+
+  document.getElementById('accountAvatar').textContent = nombre.charAt(0).toUpperCase();
+  document.getElementById('accountName').textContent = nombre;
+  document.getElementById('accountEmail').textContent = email;
+  document.getElementById('profNombre').value = perfil?.nombre || '';
+  document.getElementById('profTel').value = perfil?.telefono || '';
+  document.getElementById('profEmail').value = email;
+
+  await loadCitas(session.user.id);
+}
+
+// ── Load citas ──
+async function loadCitas(userId) {
+  const { data: citas, error } = await sb
+    .from('citas')
+    .select('*, profesionales(nombre,color), servicios(nombre,icono)')
+    .eq('usuario_id', userId)
+    .order('fecha', { ascending: false });
+
+  if (error || !citas) {
+    document.getElementById('upcomingCitas').innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><strong>Error cargando citas</strong></div>';
+    return;
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = citas.filter(c=>c.fecha>=today && c.estado!=='cancelada');
+  const past = citas.filter(c=>c.fecha<today || c.estado==='cancelada');
+
+  document.getElementById('upcomingCitas').innerHTML = upcoming.length
+    ? upcoming.map(c=>citaCardHTML(c, true)).join('')
+    : '<div class="empty-state"><div class="empty-icon">📅</div><strong>Sin citas próximas</strong>Reserva tu primera sesión.<br><a href="reservar.html" style="color:var(--teal);font-weight:600;display:inline-block;margin-top:8px">Reservar cita →</a></div>';
+
+  document.getElementById('pastCitas').innerHTML = past.length
+    ? past.map(c=>citaCardHTML(c, false)).join('')
+    : '<div style="color:var(--muted);font-size:.85rem;padding:16px 0">Sin historial todavía.</div>';
+}
+
+function citaCardHTML(cita, showCancel) {
+  const d = new Date(cita.fecha+'T12:00:00');
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const dias=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const dateStr=`${dias[d.getDay()]} ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+  const statusMap={confirmada:{label:'Confirmada',cls:'badge-ok'},completada:{label:'Completada',cls:'badge-done'},cancelada:{label:'Cancelada',cls:'badge-cancel'},pendiente_pago:{label:'Pago pendiente',cls:'badge-pending'}};
+  const st = statusMap[cita.estado] || {label:cita.estado,cls:'badge-done'};
+  const color = cita.profesionales?.color || '#1A8C6E';
+  return `<div class="cita-card">
+    <div class="cita-color" style="background:${color}"></div>
+    <div class="cita-main">
+      <div class="cita-servicio">${cita.servicios?.icono||''} ${cita.servicios?.nombre||cita.servicio_id}</div>
+      <div class="cita-meta">${cita.profesionales?.nombre||cita.prof_id} · ${dateStr} · ${cita.hora}</div>
+      <div class="cita-ref">Ref: ${cita.ref}</div>
+    </div>
+    <span class="badge ${st.cls}">${st.label}</span>
+    ${showCancel && cita.estado==='confirmada'
+      ? `<div class="cita-actions"><button class="btn-sm btn-cancel-sm" onclick="cancelarCita('${cita.id}')">Cancelar</button></div>`
+      : ''}
+  </div>`;
+}
+
+async function cancelarCita(citaId) {
+  if (!confirm('¿Cancelar esta cita? Si ya has pagado, contacta con el centro para el reembolso.')) return;
+  const { error } = await sb.from('citas').update({ estado:'cancelada' }).eq('id', citaId);
+  if (!error) {
+    const ok = document.getElementById('cancelOk');
+    ok.style.display='block';
+    setTimeout(()=>ok.style.display='none', 4000);
+    const { data:{ session } } = await sb.auth.getSession();
+    if (session) await loadCitas(session.user.id);
+  }
+}
+
+async function saveProfile() {
+  const nombre=document.getElementById('profNombre').value.trim();
+  const tel=document.getElementById('profTel').value.trim();
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) return;
+  await sb.from('perfiles').upsert({ id:session.user.id, nombre, telefono:tel||null });
+  const ok=document.getElementById('profileOk');
+  ok.classList.add('show');
+  setTimeout(()=>ok.classList.remove('show'), 3000);
+  document.getElementById('accountName').textContent = nombre;
+  document.getElementById('accountAvatar').textContent = nombre.charAt(0).toUpperCase();
+}
+
+// ── UI helpers ──
+function showTab(tab) {
+  ['citas','perfil'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+    document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['citas','perfil'][i]===tab));
+  });
+}
+function showLogin() { document.getElementById('registerScreen').style.display='none'; document.getElementById('loginScreen').style.display='block'; }
+function showRegister() { document.getElementById('loginScreen').style.display='none'; document.getElementById('registerScreen').style.display='block'; }
+function showAuthErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),5000); }
+function setBtnLoading(id, loading, loadText) { const el=document.getElementById(id); if(el){el.disabled=loading;if(loadText&&loading)el.textContent=loadText;} }
+</script>
+</body>
+</html>
