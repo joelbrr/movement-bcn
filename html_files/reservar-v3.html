@@ -1,920 +1,1798 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reservar cita · Movement Lab Bcn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <!-- Stripe.js — cargar siempre desde js.stripe.com, nunca desde otro origen -->
   <script src="https://js.stripe.com/v3/"></script>
   <!-- Supabase cliente -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --navy:#0B2240; --blue:#1A4F8A; --blue-m:#2A6BB5;
-      --teal:#1A8C6E; --teal-l:#E8F5F1; --teal-ll:#F2FAF7;
-      --sky:#EAF4FB; --off:#F7F8FA; --white:#FFFFFF;
-      --ink:#111827; --muted:#6B7280; --border:#E5E8EF;
-      --accent:#F4A024; --danger:#DC2626; --danger-l:#FEF2F2;
-      --serif:'DM Serif Display',Georgia,serif;
-      --sans:'DM Sans',system-ui,sans-serif;
-      --r-sm:8px; --r-md:14px; --r-lg:20px;
-      --shadow:0 2px 16px rgba(11,34,64,.08);
-      --shadow-lg:0 8px 40px rgba(11,34,64,.14);
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    html { font-size:16px; scroll-behavior:smooth; }
-    body { font-family:var(--sans); color:var(--ink); background:var(--off); min-height:100vh; -webkit-font-smoothing:antialiased; }
-    a { text-decoration:none; color:inherit; }
-    button { font-family:var(--sans); cursor:pointer; border:none; outline:none; }
+
+    :root {
+      --navy: #0B2240;
+      --blue: #1A4F8A;
+      --blue-m: #2A6BB5;
+      --teal: #1A8C6E;
+      --teal-l: #E8F5F1;
+      --teal-ll: #F2FAF7;
+      --sky: #EAF4FB;
+      --off: #F7F8FA;
+      --white: #FFFFFF;
+      --ink: #111827;
+      --muted: #6B7280;
+      --border: #E5E8EF;
+      --accent: #F4A024;
+      --danger: #DC2626;
+      --danger-l: #FEF2F2;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --r-sm: 8px;
+      --r-md: 14px;
+      --r-lg: 20px;
+      --shadow: 0 2px 16px rgba(11, 34, 64, .08);
+      --shadow-lg: 0 8px 40px rgba(11, 34, 64, .14);
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--off);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      font-family: var(--sans);
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
 
     /* ── NAV ── */
-    .top-nav { background:var(--white); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
-    .top-nav-inner { max-width:760px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; justify-content:space-between; }
-    .nav-logo { display:flex; align-items:center; gap:9px; }
-    .nav-logo-icon { width:32px; height:32px; background:var(--teal); border-radius:8px; display:flex; align-items:center; justify-content:center; }
-    .nav-logo-icon svg { width:17px; height:17px; }
-    .nav-logo-name { font-family:var(--serif); font-size:1.1rem; color:var(--navy); }
-    .nav-right { display:flex; align-items:center; gap:14px; }
-    .nav-back { font-size:.85rem; color:var(--muted); transition:color .2s; }
-    .nav-back:hover { color:var(--navy); }
-    .nav-login-btn { font-size:.82rem; font-weight:600; color:var(--teal); border:1.5px solid var(--teal-l); padding:5px 13px; border-radius:8px; transition:all .2s; }
-    .nav-login-btn:hover { background:var(--teal-l); }
-    .nav-user { font-size:.82rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+    .top-nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-nav-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .nav-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--teal);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-logo-icon svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .nav-logo-name {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      color: var(--navy);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-back {
+      font-size: .85rem;
+      color: var(--muted);
+      transition: color .2s;
+    }
+
+    .nav-back:hover {
+      color: var(--navy);
+    }
+
+    .nav-login-btn {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--teal);
+      border: 1.5px solid var(--teal-l);
+      padding: 5px 13px;
+      border-radius: 8px;
+      transition: all .2s;
+    }
+
+    .nav-login-btn:hover {
+      background: var(--teal-l);
+    }
+
+    .nav-user {
+      font-size: .82rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
     /* ── PROGRESS ── */
-    .progress-wrap { background:var(--white); border-bottom:1px solid var(--border); padding:14px 20px; }
-    .progress-inner { max-width:760px; margin:0 auto; }
-    .progress-steps { display:flex; align-items:center; }
-    .p-step { display:flex; align-items:center; flex:1; min-width:0; }
-    .p-step-dot { width:28px; height:28px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:600; color:var(--muted); flex-shrink:0; background:var(--white); transition:all .3s; }
-    .p-step.done .p-step-dot { background:var(--teal); border-color:var(--teal); color:#fff; }
-    .p-step.active .p-step-dot { background:var(--navy); border-color:var(--navy); color:#fff; }
-    .p-step-label { font-size:.73rem; color:var(--muted); margin-left:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .p-step.active .p-step-label { color:var(--navy); font-weight:600; }
-    .p-step.done .p-step-label { color:var(--teal); }
-    .p-connector { flex:1; height:2px; background:var(--border); margin:0 4px; min-width:6px; transition:background .3s; }
-    .p-connector.done { background:var(--teal); }
+    .progress-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .progress-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+    }
+
+    .p-step {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .p-step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--muted);
+      flex-shrink: 0;
+      background: var(--white);
+      transition: all .3s;
+    }
+
+    .p-step.done .p-step-dot {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .p-step.active .p-step-dot {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .p-step-label {
+      font-size: .73rem;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .p-step.active .p-step-label {
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .p-step.done .p-step-label {
+      color: var(--teal);
+    }
+
+    .p-connector {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      margin: 0 4px;
+      min-width: 6px;
+      transition: background .3s;
+    }
+
+    .p-connector.done {
+      background: var(--teal);
+    }
 
     /* ── WIZARD ── */
-    .wizard-wrap { max-width:760px; margin:0 auto; padding:24px 20px 60px; }
-    .step-card { background:var(--white); border-radius:var(--r-lg); padding:32px; box-shadow:var(--shadow); display:none; }
-    .step-card.active { display:block; animation:fadeSlide .3s ease; }
-    @keyframes fadeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
-    .step-title { font-family:var(--serif); font-size:1.5rem; color:var(--navy); margin-bottom:6px; }
-    .step-sub { font-size:.9rem; color:var(--muted); margin-bottom:24px; }
+    .wizard-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    .step-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    .step-card.active {
+      display: block;
+      animation: fadeSlide .3s ease;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .step-sub {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
 
     /* ── SERVICE CARDS ── */
-    .service-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .service-opt { border:1.5px solid var(--border); border-radius:var(--r-md); padding:18px 16px; cursor:pointer; transition:all .2s; display:flex; gap:12px; align-items:flex-start; }
-    .service-opt:hover { border-color:var(--teal); background:var(--teal-ll); }
-    .service-opt.selected { border-color:var(--teal); background:var(--teal-l); }
-    .service-opt-icon { font-size:1.5rem; flex-shrink:0; }
-    .service-opt-name { font-size:.95rem; font-weight:600; color:var(--navy); margin-bottom:3px; }
-    .service-opt-meta { font-size:.78rem; color:var(--muted); }
-    .price-badge { display:inline-block; background:var(--off); border:1px solid var(--border); border-radius:20px; padding:1px 8px; font-size:.75rem; font-weight:600; color:var(--navy); margin-left:6px; }
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .service-opt {
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px 16px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .service-opt:hover {
+      border-color: var(--teal);
+      background: var(--teal-ll);
+    }
+
+    .service-opt.selected {
+      border-color: var(--teal);
+      background: var(--teal-l);
+    }
+
+    .service-opt-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .service-opt-name {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .service-opt-meta {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .price-badge {
+      display: inline-block;
+      background: var(--off);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1px 8px;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-left: 6px;
+    }
 
     /* ── PROF GRID ── */
-    .auto-opt { border:1.5px dashed var(--border); border-radius:var(--r-md); padding:16px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-    .auto-opt:hover { border-color:var(--teal); background:var(--teal-ll); }
-    .auto-opt.selected { border-color:var(--teal); background:var(--teal-l); border-style:solid; }
-    .prof-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:14px; }
-    .prof-opt { border:1.5px solid var(--border); border-radius:var(--r-md); padding:18px 14px; cursor:pointer; transition:all .2s; text-align:center; }
-    .prof-opt:hover { border-color:var(--blue-m); background:var(--sky); }
-    .prof-opt.selected { border-color:var(--teal); background:var(--teal-l); }
-    .prof-avatar { width:52px; height:52px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:1.2rem; color:#fff; }
-    .prof-name { font-size:.9rem; font-weight:600; color:var(--navy); margin-bottom:2px; }
-    .prof-role { font-size:.75rem; color:var(--muted); }
-    .prof-avail { font-size:.72rem; color:var(--teal); font-weight:600; margin-top:5px; }
+    .auto-opt {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .auto-opt:hover {
+      border-color: var(--teal);
+      background: var(--teal-ll);
+    }
+
+    .auto-opt.selected {
+      border-color: var(--teal);
+      background: var(--teal-l);
+      border-style: solid;
+    }
+
+    .prof-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 14px;
+    }
+
+    .prof-opt {
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px 14px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+    }
+
+    .prof-opt:hover {
+      border-color: var(--blue-m);
+      background: var(--sky);
+    }
+
+    .prof-opt.selected {
+      border-color: var(--teal);
+      background: var(--teal-l);
+    }
+
+    .prof-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .prof-name {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .prof-role {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .prof-avail {
+      font-size: .72rem;
+      color: var(--teal);
+      font-weight: 600;
+      margin-top: 5px;
+    }
 
     /* ── CALENDAR ── */
-    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-    .cal-nav-btn { width:34px; height:34px; border-radius:8px; border:1.5px solid var(--border); background:var(--white); font-size:1.1rem; color:var(--navy); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; }
-    .cal-nav-btn:hover:not(:disabled) { border-color:var(--navy); }
-    .cal-nav-btn:disabled { opacity:.35; cursor:not-allowed; }
-    .cal-month { font-weight:600; font-size:1rem; color:var(--navy); }
-    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-    .cal-day-label { text-align:center; font-size:.72rem; font-weight:600; color:var(--muted); padding:6px 0; }
-    .cal-day { aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.85rem; cursor:pointer; transition:all .2s; border:1.5px solid transparent; color:var(--muted); }
-    .cal-day.today { border-color:var(--border); color:var(--navy); font-weight:600; }
-    .cal-day.available { color:var(--navy); font-weight:500; }
-    .cal-day.available:hover { background:var(--teal-l); border-color:var(--teal); }
-    .cal-day.selected { background:var(--navy); color:#fff; border-color:var(--navy); }
-    .cal-day.past { opacity:.3; cursor:not-allowed; pointer-events:none; }
-    .cal-day.other-month { opacity:.2; pointer-events:none; }
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .cal-nav-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      font-size: 1.1rem;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .cal-nav-btn:hover:not(:disabled) {
+      border-color: var(--navy);
+    }
+
+    .cal-nav-btn:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .cal-month {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--navy);
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day-label {
+      text-align: center;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 6px 0;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .2s;
+      border: 1.5px solid transparent;
+      color: var(--muted);
+    }
+
+    .cal-day.today {
+      border-color: var(--border);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .cal-day.available {
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    .cal-day.available:hover {
+      background: var(--teal-l);
+      border-color: var(--teal);
+    }
+
+    .cal-day.selected {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .cal-day.past {
+      opacity: .3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .cal-day.other-month {
+      opacity: .2;
+      pointer-events: none;
+    }
 
     /* ── SLOTS ── */
-    .slots-header { margin:24px 0 10px; font-size:.85rem; font-weight:600; color:var(--navy); }
-    .slots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; }
-    .slot-btn { padding:9px 4px; border-radius:var(--r-sm); border:1.5px solid var(--border); font-size:.85rem; font-weight:500; color:var(--navy); background:var(--white); cursor:pointer; transition:all .2s; text-align:center; line-height:1.3; }
-    .slot-btn:hover:not(.taken) { border-color:var(--teal); background:var(--teal-l); }
-    .slot-btn.selected { background:var(--navy); color:#fff; border-color:var(--navy); }
-    .slot-btn.taken { background:var(--off); color:var(--muted); cursor:not-allowed; font-size:.72rem; }
-    .no-slots { text-align:center; padding:32px; color:var(--muted); font-size:.9rem; }
-    .no-slots strong { display:block; color:var(--navy); margin-bottom:6px; font-size:1rem; }
+    .slots-header {
+      margin: 24px 0 10px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+    }
+
+    .slot-btn {
+      padding: 9px 4px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--border);
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--navy);
+      background: var(--white);
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .slot-btn:hover:not(.taken) {
+      border-color: var(--teal);
+      background: var(--teal-l);
+    }
+
+    .slot-btn.selected {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .slot-btn.taken {
+      background: var(--off);
+      color: var(--muted);
+      cursor: not-allowed;
+      font-size: .72rem;
+    }
+
+    .no-slots {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .no-slots strong {
+      display: block;
+      color: var(--navy);
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
 
     /* ── CONFIRM STEP ── */
-    .confirm-card { border:1.5px solid var(--border); border-radius:var(--r-md); padding:20px; margin-bottom:20px; background:var(--teal-ll); }
-    .confirm-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
-    .confirm-row:last-child { border-bottom:none; padding-bottom:0; }
-    .confirm-icon { width:36px; height:36px; background:var(--teal-l); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
-    .confirm-label { font-size:.75rem; color:var(--muted); margin-bottom:1px; }
-    .confirm-val { font-size:.95rem; font-weight:600; color:var(--navy); }
-    .price-line { background:var(--navy); color:#fff; border-radius:var(--r-sm); padding:12px 16px; display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
-    .price-line span { font-size:.85rem; color:rgba(255,255,255,.7); }
-    .price-line strong { font-family:var(--serif); font-size:1.3rem; }
+    .confirm-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 20px;
+      margin-bottom: 20px;
+      background: var(--teal-ll);
+    }
+
+    .confirm-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .confirm-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .confirm-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--teal-l);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .confirm-label {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-bottom: 1px;
+    }
+
+    .confirm-val {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .price-line {
+      background: var(--navy);
+      color: #fff;
+      border-radius: var(--r-sm);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .price-line span {
+      font-size: .85rem;
+      color: rgba(255, 255, 255, .7);
+    }
+
+    .price-line strong {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+    }
 
     /* ── FORMS ── */
-    .form-group { margin-bottom:16px; }
-    .form-group label { display:block; font-size:.8rem; font-weight:600; color:var(--navy); margin-bottom:5px; }
-    .form-group input, .form-group textarea { width:100%; padding:11px 14px; font-family:var(--sans); font-size:.9rem; color:var(--ink); background:var(--off); border:1.5px solid var(--border); border-radius:var(--r-sm); transition:border-color .2s,box-shadow .2s; outline:none; }
-    .form-group input:focus, .form-group textarea:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(26,140,110,.12); background:var(--white); }
-    .form-group textarea { resize:vertical; min-height:80px; }
-    .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 11px 14px;
+      font-family: var(--sans);
+      font-size: .9rem;
+      color: var(--ink);
+      background: var(--off);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(26, 140, 110, .12);
+      background: var(--white);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
 
     /* ── PAGO STEP ── */
-    .payment-methods { margin-bottom:16px; }
-    .payment-method-tab { display:flex; gap:10px; margin-bottom:16px; }
-    .pm-tab { flex:1; padding:10px; border:1.5px solid var(--border); border-radius:var(--r-sm); text-align:center; font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s; color:var(--muted); background:var(--off); }
-    .pm-tab.active { border-color:var(--teal); color:var(--teal); background:var(--teal-l); }
+    .payment-methods {
+      margin-bottom: 16px;
+    }
+
+    .payment-method-tab {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .pm-tab {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      text-align: center;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--muted);
+      background: var(--off);
+    }
+
+    .pm-tab.active {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: var(--teal-l);
+    }
 
     /* Stripe Elements container */
-    #stripe-elements-container { background:var(--off); border:1.5px solid var(--border); border-radius:var(--r-sm); padding:14px; min-height:52px; transition:border-color .2s; }
-    #stripe-elements-container.focused { border-color:var(--teal); box-shadow:0 0 0 3px rgba(26,140,110,.12); }
+    #stripe-elements-container {
+      background: var(--off);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px;
+      min-height: 52px;
+      transition: border-color .2s;
+    }
 
-    .stripe-logo { display:flex; align-items:center; justify-content:flex-end; gap:6px; margin-top:8px; }
-    .stripe-logo span { font-size:.72rem; color:var(--muted); }
-    .stripe-badge { background:#635BFF; color:#fff; font-size:.68rem; font-weight:700; padding:2px 7px; border-radius:4px; letter-spacing:.02em; }
+    #stripe-elements-container.focused {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(26, 140, 110, .12);
+    }
 
-    .payment-security { display:flex; align-items:center; gap:8px; background:var(--sky); border-radius:var(--r-sm); padding:10px 14px; margin-bottom:16px; }
-    .payment-security p { font-size:.78rem; color:var(--blue); }
+    .stripe-logo {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .stripe-logo span {
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .stripe-badge {
+      background: #635BFF;
+      color: #fff;
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: .02em;
+    }
+
+    .payment-security {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sky);
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+
+    .payment-security p {
+      font-size: .78rem;
+      color: var(--blue);
+    }
 
     /* Guest / account toggle */
-    .account-toggle { border:1px solid var(--border); border-radius:var(--r-md); padding:16px; margin-bottom:20px; }
-    .account-toggle-header { display:flex; align-items:center; justify-content:space-between; }
-    .account-toggle-header strong { font-size:.88rem; color:var(--navy); }
-    .account-toggle-header a { font-size:.78rem; color:var(--teal); cursor:pointer; }
-    .guest-note { font-size:.78rem; color:var(--muted); margin-top:6px; }
+    .account-toggle {
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .account-toggle-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .account-toggle-header strong {
+      font-size: .88rem;
+      color: var(--navy);
+    }
+
+    .account-toggle-header a {
+      font-size: .78rem;
+      color: var(--teal);
+      cursor: pointer;
+    }
+
+    .guest-note {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
 
     /* ── ALERTS ── */
-    .alert { padding:12px 16px; border-radius:var(--r-sm); font-size:.85rem; margin-bottom:16px; display:none; }
-    .alert.show { display:flex; gap:9px; align-items:flex-start; }
-    .alert-error { background:#FEF2F2; border:1px solid #FECACA; color:#991B1B; }
-    .alert-info { background:var(--sky); border:1px solid #BAE0F7; color:var(--blue); }
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--r-sm);
+      font-size: .85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert.show {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+    }
+
+    .alert-error {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+
+    .alert-info {
+      background: var(--sky);
+      border: 1px solid #BAE0F7;
+      color: var(--blue);
+    }
 
     /* ── PROCESSING STATE ── */
-    .payment-processing { text-align:center; padding:32px 20px; }
-    .spinner-big { width:48px; height:48px; border:3px solid var(--border); border-top-color:var(--teal); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-    .payment-processing p { color:var(--muted); font-size:.9rem; }
+    .payment-processing {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .spinner-big {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .payment-processing p {
+      color: var(--muted);
+      font-size: .9rem;
+    }
 
     /* ── SUCCESS ── */
-    .success-wrap { text-align:center; padding:20px 0; }
-    .success-icon-big { width:72px; height:72px; background:var(--teal-l); border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; font-size:2rem; }
-    .success-wrap h2 { font-family:var(--serif); font-size:1.8rem; color:var(--navy); margin-bottom:10px; }
-    .success-wrap p { font-size:.95rem; color:var(--muted); margin-bottom:24px; max-width:420px; margin-left:auto; margin-right:auto; }
-    .booking-ref { display:inline-block; background:var(--teal-l); border:1px solid var(--teal); border-radius:var(--r-sm); padding:8px 20px; font-family:monospace; font-size:1.1rem; color:var(--teal); letter-spacing:.08em; margin-bottom:24px; }
-    .success-summary { border:1px solid var(--border); border-radius:var(--r-md); padding:18px 20px; margin-bottom:24px; text-align:left; }
-    .ss-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:.88rem; }
-    .ss-row:last-child { border-bottom:none; }
-    .ss-label { color:var(--muted); }
-    .ss-val { font-weight:600; color:var(--navy); }
-    .email-note { background:var(--sky); border-radius:var(--r-sm); padding:12px 16px; font-size:.82rem; color:var(--blue); margin-bottom:20px; }
+    .success-wrap {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .success-icon-big {
+      width: 72px;
+      height: 72px;
+      background: var(--teal-l);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .success-wrap h2 {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .success-wrap p {
+      font-size: .95rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .booking-ref {
+      display: inline-block;
+      background: var(--teal-l);
+      border: 1px solid var(--teal);
+      border-radius: var(--r-sm);
+      padding: 8px 20px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: var(--teal);
+      letter-spacing: .08em;
+      margin-bottom: 24px;
+    }
+
+    .success-summary {
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .ss-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+    }
+
+    .ss-row:last-child {
+      border-bottom: none;
+    }
+
+    .ss-label {
+      color: var(--muted);
+    }
+
+    .ss-val {
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .email-note {
+      background: var(--sky);
+      border-radius: var(--r-sm);
+      padding: 12px 16px;
+      font-size: .82rem;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
 
     /* ── BUTTONS ── */
-    .btn-row { display:flex; gap:12px; margin-top:24px; justify-content:space-between; align-items:center; }
-    .btn { display:inline-flex; align-items:center; gap:7px; padding:12px 24px; border-radius:var(--r-md); font-size:.95rem; font-weight:600; transition:all .2s; cursor:pointer; border:none; }
-    .btn-primary { background:var(--teal); color:#fff; box-shadow:0 2px 12px rgba(26,140,110,.25); }
-    .btn-primary:hover { background:#157a5e; transform:translateY(-1px); }
-    .btn-primary:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; box-shadow:none; }
-    .btn-ghost { background:transparent; color:var(--navy); border:1.5px solid var(--border); }
-    .btn-ghost:hover { border-color:var(--navy); }
-    .btn-pay { background:var(--navy); color:#fff; width:100%; justify-content:center; font-size:1rem; padding:14px; border-radius:var(--r-md); }
-    .btn-pay:hover:not(:disabled) { background:#0d2d52; transform:translateY(-1px); }
-    .btn-pay:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 24px;
+      border-radius: var(--r-md);
+      font-size: .95rem;
+      font-weight: 600;
+      transition: all .2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(26, 140, 110, .25);
+    }
+
+    .btn-primary:hover {
+      background: #157a5e;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--navy);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--navy);
+    }
+
+    .btn-pay {
+      background: var(--navy);
+      color: #fff;
+      width: 100%;
+      justify-content: center;
+      font-size: 1rem;
+      padding: 14px;
+      border-radius: var(--r-md);
+    }
+
+    .btn-pay:hover:not(:disabled) {
+      background: #0d2d52;
+      transform: translateY(-1px);
+    }
+
+    .btn-pay:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+    }
 
     @media (max-width:600px) {
-      .step-card { padding:20px 16px; }
-      .service-grid { grid-template-columns:1fr; }
-      .prof-grid { grid-template-columns:1fr 1fr; }
-      .form-row-2 { grid-template-columns:1fr; gap:0; }
-      .p-step-label { display:none; }
-      .btn-row { flex-wrap:wrap; }
-      .btn-row .btn { flex:1; justify-content:center; }
+      .step-card {
+        padding: 20px 16px;
+      }
+
+      .service-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .prof-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .p-step-label {
+        display: none;
+      }
+
+      .btn-row {
+        flex-wrap: wrap;
+      }
+
+      .btn-row .btn {
+        flex: 1;
+        justify-content: center;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav class="top-nav">
-  <div class="top-nav-inner">
-    <a href="index.html" class="nav-logo">
-      <div class="nav-logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>
-      </div>
-      <span class="nav-logo-name">Movement Lab Bcn</span>
-    </a>
-    <div class="nav-right">
-      <a href="index.html" class="nav-back">← Volver</a>
-      <a href="mi-cuenta.html" class="nav-login-btn" id="navLoginBtn">Mi cuenta</a>
-    </div>
-  </div>
-</nav>
-
-<!-- PROGRESS (6 pasos ahora) -->
-<div class="progress-wrap">
-  <div class="progress-inner">
-    <div class="progress-steps">
-      <div class="p-step active" data-step="1"><div class="p-step-dot">1</div><span class="p-step-label">Servicio</span></div>
-      <div class="p-connector" id="conn-1-2"></div>
-      <div class="p-step" data-step="2"><div class="p-step-dot">2</div><span class="p-step-label">Profesional</span></div>
-      <div class="p-connector" id="conn-2-3"></div>
-      <div class="p-step" data-step="3"><div class="p-step-dot">3</div><span class="p-step-label">Fecha</span></div>
-      <div class="p-connector" id="conn-3-4"></div>
-      <div class="p-step" data-step="4"><div class="p-step-dot">4</div><span class="p-step-label">Hora</span></div>
-      <div class="p-connector" id="conn-4-5"></div>
-      <div class="p-step" data-step="5"><div class="p-step-dot">5</div><span class="p-step-label">Datos</span></div>
-      <div class="p-connector" id="conn-5-6"></div>
-      <div class="p-step" data-step="6"><div class="p-step-dot">6</div><span class="p-step-label">Pago</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="wizard-wrap">
-
-  <!-- STEP 1: Servicio -->
-  <div class="step-card active" id="step-1">
-    <h2 class="step-title">¿Qué tipo de sesión necesitas?</h2>
-    <p class="step-sub">Selecciona el servicio. El precio se cargará al confirmar.</p>
-    <div class="alert alert-error" id="err-1">Por favor selecciona un servicio.</div>
-    <div class="service-grid" id="serviceGrid"></div>
-    <div class="btn-row"><span></span><button class="btn btn-primary" onclick="goStep(2)">Siguiente →</button></div>
-  </div>
-
-  <!-- STEP 2: Profesional -->
-  <div class="step-card" id="step-2">
-    <h2 class="step-title">¿Con quién quieres tu cita?</h2>
-    <p class="step-sub">Elige profesional o asignación automática.</p>
-    <div class="alert alert-error" id="err-2">Por favor elige una opción.</div>
-    <div class="auto-opt selected" id="autoOpt" onclick="selectProfesional('auto')">
-      <div style="font-size:1.6rem">🔄</div>
-      <div><strong style="display:block;font-size:.95rem;color:var(--navy)">Asignación automática</strong><span style="font-size:.8rem;color:var(--muted)">Te asignamos el profesional disponible antes</span></div>
-    </div>
-    <div class="prof-grid" id="profGrid"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button><button class="btn btn-primary" onclick="goStep(3)">Siguiente →</button></div>
-  </div>
-
-  <!-- STEP 3: Fecha -->
-  <div class="step-card" id="step-3">
-    <h2 class="step-title">Elige la fecha</h2>
-    <p class="step-sub">Solo se muestran los días con disponibilidad.</p>
-    <div class="alert alert-error" id="err-3">Por favor selecciona una fecha.</div>
-    <div class="cal-header">
-      <button class="cal-nav-btn" id="calPrev" onclick="changeMonth(-1)">‹</button>
-      <span class="cal-month" id="calMonthLabel"></span>
-      <button class="cal-nav-btn" id="calNext" onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="cal-grid">
-      <div class="cal-day-label">L</div><div class="cal-day-label">M</div><div class="cal-day-label">X</div>
-      <div class="cal-day-label">J</div><div class="cal-day-label">V</div><div class="cal-day-label">S</div><div class="cal-day-label">D</div>
-    </div>
-    <div class="cal-grid" id="calDays"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button><button class="btn btn-primary" onclick="goStep(4)">Siguiente →</button></div>
-  </div>
-
-  <!-- STEP 4: Hora -->
-  <div class="step-card" id="step-4">
-    <h2 class="step-title">Selecciona la hora</h2>
-    <p class="step-sub" id="step4Sub">Horarios disponibles.</p>
-    <div class="alert alert-error" id="err-4">Por favor selecciona una hora.</div>
-    <div id="slotsArea"></div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(3)">← Atrás</button><button class="btn btn-primary" onclick="goStep(5)">Siguiente →</button></div>
-  </div>
-
-  <!-- STEP 5: Datos personales -->
-  <div class="step-card" id="step-5">
-    <h2 class="step-title">Tus datos de contacto</h2>
-    <p class="step-sub">Necesitamos estos datos para confirmar y enviarte la reserva por email.</p>
-    <div class="alert alert-error" id="err-5">Por favor completa nombre y email.</div>
-
-    <!-- Account status area -->
-    <div class="account-toggle" id="accountToggle">
-      <div class="account-toggle-header">
-        <strong id="accountStatus">Reservando como invitado</strong>
-        <a onclick="openLogin()">Iniciar sesión para guardar tus citas →</a>
-      </div>
-      <p class="guest-note">También puedes reservar sin cuenta. Recibirás la confirmación por email.</p>
-    </div>
-
-    <div class="form-row-2">
-      <div class="form-group"><label>Nombre completo *</label><input type="text" id="pNombre" placeholder="Tu nombre y apellido"></div>
-      <div class="form-group"><label>Email *</label><input type="email" id="pEmail" placeholder="tu@email.com"></div>
-    </div>
-    <div class="form-row-2">
-      <div class="form-group"><label>Teléfono</label><input type="tel" id="pTel" placeholder="600 000 000"></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Cuéntanos tu caso (opcional)</label><textarea id="pNota" placeholder="Describe brevemente tu lesión o lo que necesitas..."></textarea></div>
-    </div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(4)">← Atrás</button><button class="btn btn-primary" onclick="goStep(6)">Ir al pago →</button></div>
-  </div>
-
-  <!-- STEP 6: PAGO -->
-  <div class="step-card" id="step-6">
-    <div id="paymentFormArea">
-      <h2 class="step-title">Pago seguro</h2>
-      <p class="step-sub">Completa el pago para confirmar tu reserva. Tu cita quedará confirmada inmediatamente.</p>
-      <div class="alert alert-error" id="err-6">Ha ocurrido un error procesando el pago. Por favor inténtalo de nuevo.</div>
-
-      <!-- Resumen de lo que se paga -->
-      <div class="confirm-card" id="paymentSummary"></div>
-
-      <!-- Seguridad -->
-      <div class="payment-security">
-        <span style="font-size:1rem">🔒</span>
-        <p>Pago seguro procesado por Stripe. Tus datos bancarios nunca llegan a nuestros servidores.</p>
-      </div>
-
-      <!-- Stripe Elements -->
-      <div class="form-group" style="margin-bottom:20px">
-        <label>Datos de tarjeta</label>
-        <div id="stripe-elements-container">
-          <!-- Stripe Elements se monta aquí -->
-          <div id="payment-element"></div>
+  <!-- NAV -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z" />
+          </svg>
         </div>
-        <div class="stripe-logo">
-          <span>Protegido por</span>
-          <span class="stripe-badge">Stripe</span>
+        <span class="nav-logo-name">Movement Lab Bcn</span>
+      </a>
+      <div class="nav-right">
+        <a href="index.html" class="nav-back">← Volver</a>
+        <a href="mi-cuenta.html" class="nav-login-btn" id="navLoginBtn">Mi cuenta</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PROGRESS (6 pasos ahora) -->
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="progress-steps">
+        <div class="p-step active" data-step="1">
+          <div class="p-step-dot">1</div><span class="p-step-label">Servicio</span>
+        </div>
+        <div class="p-connector" id="conn-1-2"></div>
+        <div class="p-step" data-step="2">
+          <div class="p-step-dot">2</div><span class="p-step-label">Profesional</span>
+        </div>
+        <div class="p-connector" id="conn-2-3"></div>
+        <div class="p-step" data-step="3">
+          <div class="p-step-dot">3</div><span class="p-step-label">Fecha</span>
+        </div>
+        <div class="p-connector" id="conn-3-4"></div>
+        <div class="p-step" data-step="4">
+          <div class="p-step-dot">4</div><span class="p-step-label">Hora</span>
+        </div>
+        <div class="p-connector" id="conn-4-5"></div>
+        <div class="p-step" data-step="5">
+          <div class="p-step-dot">5</div><span class="p-step-label">Datos</span>
+        </div>
+        <div class="p-connector" id="conn-5-6"></div>
+        <div class="p-step" data-step="6">
+          <div class="p-step-dot">6</div><span class="p-step-label">Pago</span>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="alert alert-error" id="stripe-error"></div>
+  <div class="wizard-wrap">
 
-      <button class="btn btn-pay" id="payBtn" onclick="procesarPago()">
-        <span id="payBtnText">Pagar y confirmar cita</span>
-      </button>
+    <!-- STEP 1: Servicio -->
+    <div class="step-card active" id="step-1">
+      <h2 class="step-title">¿Qué tipo de sesión necesitas?</h2>
+      <p class="step-sub">Selecciona el servicio. El precio se cargará al confirmar.</p>
+      <div class="alert alert-error" id="err-1">Por favor selecciona un servicio.</div>
+      <div class="service-grid" id="serviceGrid"></div>
+      <div class="btn-row"><span></span><button class="btn btn-primary" onclick="goStep(2)">Siguiente →</button></div>
+    </div>
 
-      <div class="btn-row" style="margin-top:12px">
-        <button class="btn btn-ghost" onclick="goStep(5)">← Atrás</button>
-        <span style="font-size:.75rem;color:var(--muted)">Al pagar aceptas los <a href="#" style="color:var(--teal)">términos del servicio</a></span>
+    <!-- STEP 2: Profesional -->
+    <div class="step-card" id="step-2">
+      <h2 class="step-title">¿Con quién quieres tu cita?</h2>
+      <p class="step-sub">Elige profesional o asignación automática.</p>
+      <div class="alert alert-error" id="err-2">Por favor elige una opción.</div>
+      <div class="auto-opt selected" id="autoOpt" onclick="selectProfesional('auto')">
+        <div style="font-size:1.6rem">🔄</div>
+        <div><strong style="display:block;font-size:.95rem;color:var(--navy)">Asignación automática</strong><span
+            style="font-size:.8rem;color:var(--muted)">Te asignamos el profesional disponible antes</span></div>
+      </div>
+      <div class="prof-grid" id="profGrid"></div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button><button
+          class="btn btn-primary" onclick="goStep(3)">Siguiente →</button></div>
+    </div>
+
+    <!-- STEP 3: Fecha -->
+    <div class="step-card" id="step-3">
+      <h2 class="step-title">Elige la fecha</h2>
+      <p class="step-sub">Solo se muestran los días con disponibilidad.</p>
+      <div class="alert alert-error" id="err-3">Por favor selecciona una fecha.</div>
+      <div class="cal-header">
+        <button class="cal-nav-btn" id="calPrev" onclick="changeMonth(-1)">‹</button>
+        <span class="cal-month" id="calMonthLabel"></span>
+        <button class="cal-nav-btn" id="calNext" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-day-label">L</div>
+        <div class="cal-day-label">M</div>
+        <div class="cal-day-label">X</div>
+        <div class="cal-day-label">J</div>
+        <div class="cal-day-label">V</div>
+        <div class="cal-day-label">S</div>
+        <div class="cal-day-label">D</div>
+      </div>
+      <div class="cal-grid" id="calDays"></div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button><button
+          class="btn btn-primary" onclick="goStep(4)">Siguiente →</button></div>
+    </div>
+
+    <!-- STEP 4: Hora -->
+    <div class="step-card" id="step-4">
+      <h2 class="step-title">Selecciona la hora</h2>
+      <p class="step-sub" id="step4Sub">Horarios disponibles.</p>
+      <div class="alert alert-error" id="err-4">Por favor selecciona una hora.</div>
+      <div id="slotsArea"></div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(3)">← Atrás</button><button
+          class="btn btn-primary" onclick="goStep(5)">Siguiente →</button></div>
+    </div>
+
+    <!-- STEP 5: Datos personales -->
+    <div class="step-card" id="step-5">
+      <h2 class="step-title">Tus datos de contacto</h2>
+      <p class="step-sub">Necesitamos estos datos para confirmar y enviarte la reserva por email.</p>
+      <div class="alert alert-error" id="err-5">Por favor completa nombre y email.</div>
+
+      <!-- Account status area -->
+      <div class="account-toggle" id="accountToggle">
+        <div class="account-toggle-header">
+          <strong id="accountStatus">Reservando como invitado</strong>
+          <a onclick="openLogin()">Iniciar sesión para guardar tus citas →</a>
+        </div>
+        <p class="guest-note">También puedes reservar sin cuenta. Recibirás la confirmación por email.</p>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group"><label>Nombre completo *</label><input type="text" id="pNombre"
+            placeholder="Tu nombre y apellido"></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="pEmail" placeholder="tu@email.com"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Teléfono</label><input type="tel" id="pTel" placeholder="600 000 000"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Cuéntanos tu caso (opcional)</label><textarea id="pNota"
+            placeholder="Describe brevemente tu lesión o lo que necesitas..."></textarea></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(4)">← Atrás</button><button
+          class="btn btn-primary" onclick="goStep(6)">Ir al pago →</button></div>
+    </div>
+
+    <!-- STEP 6: PAGO -->
+    <div class="step-card" id="step-6">
+      <div id="paymentFormArea">
+        <h2 class="step-title">Pago seguro</h2>
+        <p class="step-sub">Completa el pago para confirmar tu reserva. Tu cita quedará confirmada inmediatamente.</p>
+        <div class="alert alert-error" id="err-6">Ha ocurrido un error procesando el pago. Por favor inténtalo de nuevo.
+        </div>
+
+        <!-- Resumen de lo que se paga -->
+        <div class="confirm-card" id="paymentSummary"></div>
+
+        <!-- Seguridad -->
+        <div class="payment-security">
+          <span style="font-size:1rem">🔒</span>
+          <p>Pago seguro procesado por Stripe. Tus datos bancarios nunca llegan a nuestros servidores.</p>
+        </div>
+
+        <!-- Stripe Elements -->
+        <div class="form-group" style="margin-bottom:20px">
+          <label>Datos de tarjeta</label>
+          <div id="stripe-elements-container">
+            <!-- Stripe Elements se monta aquí -->
+            <div id="payment-element"></div>
+          </div>
+          <div class="stripe-logo">
+            <span>Protegido por</span>
+            <span class="stripe-badge">Stripe</span>
+          </div>
+        </div>
+
+        <div class="alert alert-error" id="stripe-error"></div>
+
+        <button class="btn btn-pay" id="payBtn" onclick="procesarPago()">
+          <span id="payBtnText">Pagar y confirmar cita</span>
+        </button>
+
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-ghost" onclick="goStep(5)">← Atrás</button>
+          <span style="font-size:.75rem;color:var(--muted)">Al pagar aceptas los <a href="#"
+              style="color:var(--teal)">términos del servicio</a></span>
+        </div>
+      </div>
+
+      <!-- Estado procesando pago -->
+      <div class="payment-processing" id="paymentProcessing" style="display:none">
+        <div class="spinner-big"></div>
+        <p>Procesando tu pago de forma segura...</p>
+        <p style="font-size:.78rem;margin-top:8px">No cierres esta ventana</p>
       </div>
     </div>
 
-    <!-- Estado procesando pago -->
-    <div class="payment-processing" id="paymentProcessing" style="display:none">
-      <div class="spinner-big"></div>
-      <p>Procesando tu pago de forma segura...</p>
-      <p style="font-size:.78rem;margin-top:8px">No cierres esta ventana</p>
+    <!-- SUCCESS -->
+    <div class="step-card" id="step-success">
+      <div class="success-wrap">
+        <div class="success-icon-big">✓</div>
+        <h2>¡Reserva confirmada!</h2>
+        <p>Tu cita y el pago han sido procesados correctamente.</p>
+        <div class="booking-ref" id="bookingRef"></div>
+        <div class="email-note" id="emailNote"></div>
+        <div class="success-summary" id="successSummary"></div>
+        <a href="index.html" class="btn btn-primary" style="display:inline-flex;margin-bottom:12px;">← Volver a la
+          web</a><br>
+        <a href="mi-cuenta.html" class="btn btn-ghost" style="display:inline-flex;margin-top:8px;">Ver mis citas →</a>
+      </div>
     </div>
-  </div>
 
-  <!-- SUCCESS -->
-  <div class="step-card" id="step-success">
-    <div class="success-wrap">
-      <div class="success-icon-big">✓</div>
-      <h2>¡Reserva confirmada!</h2>
-      <p>Tu cita y el pago han sido procesados correctamente.</p>
-      <div class="booking-ref" id="bookingRef"></div>
-      <div class="email-note" id="emailNote"></div>
-      <div class="success-summary" id="successSummary"></div>
-      <a href="index.html" class="btn btn-primary" style="display:inline-flex;margin-bottom:12px;">← Volver a la web</a><br>
-      <a href="mi-cuenta.html" class="btn btn-ghost" style="display:inline-flex;margin-top:8px;">Ver mis citas →</a>
-    </div>
-  </div>
+  </div><!-- /wizard-wrap -->
 
-</div><!-- /wizard-wrap -->
+  <script>
+    // ════════════════════════════════════════════════════
+    // CONFIGURACIÓN — CAMBIAR EN PRODUCCIÓN
+    // ════════════════════════════════════════════════════
+    const CONFIG = {
+      SUPABASE_URL: 'https://czehgzjlcoipectnqtsw.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6ZWhnempsY29pcGVjdG5xdHN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0Mzk3NjAsImV4cCI6MjA5MDAxNTc2MH0.cI5VYyyfbp4EFl7J5kGnqjQAKJTeHeivtmPyMBkalJo',
+      STRIPE_PK: 'pk_test_...',                         // ← publishable key de Stripe (pendiente)
+      EDGE_FUNCTIONS_URL: 'https://czehgzjlcoipectnqtsw.supabase.co/functions/v1',
+      WA_NUMBER: '34XXXXXXXXX',
+    };
 
-<script>
-// ════════════════════════════════════════════════════
-// CONFIGURACIÓN — CAMBIAR EN PRODUCCIÓN
-// ════════════════════════════════════════════════════
-const CONFIG = {
-  SUPABASE_URL:      'https://TU_PROYECTO.supabase.co',   // ← tu URL de Supabase
-  SUPABASE_ANON_KEY: 'eyJ...',                              // ← anon key de Supabase
-  STRIPE_PK:         'pk_test_...',                         // ← publishable key de Stripe
-  EDGE_FUNCTIONS_URL:'https://TU_PROYECTO.supabase.co/functions/v1',
-  WA_NUMBER:         '34XXXXXXXXX',
-};
+    // ════════════════════════════════════════════════════
+    // INICIALIZACIÓN
+    // ════════════════════════════════════════════════════
+    const { createClient } = supabase;
+    const sbClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    const stripeClient = Stripe(CONFIG.STRIPE_PK);
 
-// ════════════════════════════════════════════════════
-// INICIALIZACIÓN
-// ════════════════════════════════════════════════════
-const { createClient } = supabase;
-const sbClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-const stripeClient = Stripe(CONFIG.STRIPE_PK);
+    let stripeElements = null;
+    let paymentElement = null;
 
-let stripeElements = null;
-let paymentElement = null;
+    // ════════════════════════════════════════════════════
+    // DATA LAYER — lee desde Supabase (con fallback a localStorage para dev)
+    // ════════════════════════════════════════════════════
+    const DB = {
+      // Modo demo: datos en memoria si no hay Supabase configurado
+      _isDemo() { return CONFIG.SUPABASE_URL.includes('TU_PROYECTO'); },
+      _demo: {
+        servicios: [
+          { id: 'fisio', nombre: 'Fisioterapia', icono: '🦴', duracion_min: 60, precio: 55.00, prof_ids: ['ana', 'carlos', 'maria', 'laura', 'pablo'] },
+          { id: 'rehab', nombre: 'Rehabilitación', icono: '🔄', duracion_min: 60, precio: 60.00, prof_ids: ['ana', 'carlos', 'laura'] },
+          { id: 'prepfis', nombre: 'Preparación física', icono: '💪', duracion_min: 60, precio: 45.00, prof_ids: ['javier'] },
+          { id: 'masaje', nombre: 'Masaje terapéutico', icono: '✋', duracion_min: 45, precio: 40.00, prof_ids: ['pablo', 'maria'] },
+          { id: 'podologia', nombre: 'Podología', icono: '🦶', duracion_min: 45, precio: 50.00, prof_ids: ['ana'] },
+        ],
+        profesionales: [
+          { id: 'ana', nombre: 'Ana López', iniciales: 'AL', color: '#1A4F8A', rol: 'Fisioterapeuta · Directora', servicios: ['fisio', 'rehab', 'podologia'], horario: { lunes: { ini: '08:00', fin: '17:00' }, martes: { ini: '08:00', fin: '17:00' }, miercoles: { ini: '08:00', fin: '17:00' }, jueves: { ini: '08:00', fin: '17:00' }, viernes: { ini: '08:00', fin: '14:00' } } },
+          { id: 'carlos', nombre: 'Carlos Martín', iniciales: 'CM', color: '#1A8C6E', rol: 'Fisioterapeuta · Deportivo', servicios: ['fisio', 'rehab'], horario: { lunes: { ini: '10:00', fin: '20:00' }, martes: { ini: '10:00', fin: '20:00' }, miercoles: { ini: '10:00', fin: '20:00' }, jueves: { ini: '10:00', fin: '20:00' }, viernes: { ini: '10:00', fin: '18:00' } } },
+          { id: 'javier', nombre: 'Javier Ruiz', iniciales: 'JR', color: '#b06020', rol: 'Preparador Físico', servicios: ['prepfis'], horario: { lunes: { ini: '07:00', fin: '15:00' }, martes: { ini: '07:00', fin: '15:00' }, miercoles: { ini: '07:00', fin: '15:00' }, jueves: { ini: '07:00', fin: '15:00' }, viernes: { ini: '07:00', fin: '15:00' }, sabado: { ini: '09:00', fin: '13:00' } } },
+          { id: 'pablo', nombre: 'Pablo Santos', iniciales: 'PS', color: '#2a7a5a', rol: 'Fisio · Masajes', servicios: ['masaje', 'fisio'], horario: { lunes: { ini: '11:00', fin: '20:00' }, martes: { ini: '11:00', fin: '20:00' }, miercoles: { ini: '11:00', fin: '20:00' }, jueves: { ini: '11:00', fin: '20:00' }, viernes: { ini: '11:00', fin: '19:00' } } },
+        ],
+        citas: [], bloqueos: [], excepciones: [],
+      },
 
-// ════════════════════════════════════════════════════
-// DATA LAYER — lee desde Supabase (con fallback a localStorage para dev)
-// ════════════════════════════════════════════════════
-const DB = {
-  // Modo demo: datos en memoria si no hay Supabase configurado
-  _isDemo() { return CONFIG.SUPABASE_URL.includes('TU_PROYECTO'); },
-  _demo: {
-    servicios: [
-      { id:'fisio',   nombre:'Fisioterapia',       icono:'🦴', duracion_min:60, precio:55.00, prof_ids:['ana','carlos','maria','laura','pablo'] },
-      { id:'rehab',   nombre:'Rehabilitación',     icono:'🔄', duracion_min:60, precio:60.00, prof_ids:['ana','carlos','laura'] },
-      { id:'prepfis', nombre:'Preparación física', icono:'💪', duracion_min:60, precio:45.00, prof_ids:['javier'] },
-      { id:'masaje',  nombre:'Masaje terapéutico', icono:'✋', duracion_min:45, precio:40.00, prof_ids:['pablo','maria'] },
-      { id:'podologia',nombre:'Podología',          icono:'🦶', duracion_min:45, precio:50.00, prof_ids:['ana'] },
-    ],
-    profesionales: [
-      { id:'ana',    nombre:'Ana López',       iniciales:'AL', color:'#1A4F8A', rol:'Fisioterapeuta · Directora',  servicios:['fisio','rehab','podologia'], horario:{lunes:{ini:'08:00',fin:'17:00'},martes:{ini:'08:00',fin:'17:00'},miercoles:{ini:'08:00',fin:'17:00'},jueves:{ini:'08:00',fin:'17:00'},viernes:{ini:'08:00',fin:'14:00'}} },
-      { id:'carlos', nombre:'Carlos Martín',   iniciales:'CM', color:'#1A8C6E', rol:'Fisioterapeuta · Deportivo', servicios:['fisio','rehab'],               horario:{lunes:{ini:'10:00',fin:'20:00'},martes:{ini:'10:00',fin:'20:00'},miercoles:{ini:'10:00',fin:'20:00'},jueves:{ini:'10:00',fin:'20:00'},viernes:{ini:'10:00',fin:'18:00'}} },
-      { id:'javier', nombre:'Javier Ruiz',     iniciales:'JR', color:'#b06020', rol:'Preparador Físico',           servicios:['prepfis'],                    horario:{lunes:{ini:'07:00',fin:'15:00'},martes:{ini:'07:00',fin:'15:00'},miercoles:{ini:'07:00',fin:'15:00'},jueves:{ini:'07:00',fin:'15:00'},viernes:{ini:'07:00',fin:'15:00'},sabado:{ini:'09:00',fin:'13:00'}} },
-      { id:'pablo',  nombre:'Pablo Santos',    iniciales:'PS', color:'#2a7a5a', rol:'Fisio · Masajes',             servicios:['masaje','fisio'],             horario:{lunes:{ini:'11:00',fin:'20:00'},martes:{ini:'11:00',fin:'20:00'},miercoles:{ini:'11:00',fin:'20:00'},jueves:{ini:'11:00',fin:'20:00'},viernes:{ini:'11:00',fin:'19:00'}} },
-    ],
-    citas:[], bloqueos:[], excepciones:[],
-  },
+      async getServicios() {
+        if (this._isDemo()) return this._demo.servicios;
+        const { data } = await sbClient.from('servicios').select('*').eq('activo', true);
+        return data || [];
+      },
+      async getProfesionales() {
+        if (this._isDemo()) return this._demo.profesionales;
+        const { data } = await sbClient.from('profesionales').select('*').eq('activo', true);
+        return data || [];
+      },
+      async getCitas() {
+        if (this._isDemo()) {
+          try { return JSON.parse(localStorage.getItem('mlb_citas_demo') || '[]'); } catch { return []; }
+        }
+        const { data } = await sbClient.from('citas').select('*').neq('estado', 'cancelada');
+        return data || [];
+      },
+      async getBloqueos() {
+        if (this._isDemo()) return this._demo.bloqueos;
+        const { data } = await sbClient.from('bloqueos').select('*');
+        return data || [];
+      },
+      async getExcepciones() {
+        if (this._isDemo()) return this._demo.excepciones;
+        const { data } = await sbClient.from('excepciones').select('*');
+        return data || [];
+      },
+    };
 
-  async getServicios() {
-    if (this._isDemo()) return this._demo.servicios;
-    const { data } = await sbClient.from('servicios').select('*').eq('activo',true);
-    return data || [];
-  },
-  async getProfesionales() {
-    if (this._isDemo()) return this._demo.profesionales;
-    const { data } = await sbClient.from('profesionales').select('*').eq('activo',true);
-    return data || [];
-  },
-  async getCitas() {
-    if (this._isDemo()) {
-      try { return JSON.parse(localStorage.getItem('mlb_citas_demo') || '[]'); } catch { return []; }
-    }
-    const { data } = await sbClient.from('citas').select('*').neq('estado','cancelada');
-    return data || [];
-  },
-  async getBloqueos() {
-    if (this._isDemo()) return this._demo.bloqueos;
-    const { data } = await sbClient.from('bloqueos').select('*');
-    return data || [];
-  },
-  async getExcepciones() {
-    if (this._isDemo()) return this._demo.excepciones;
-    const { data } = await sbClient.from('excepciones').select('*');
-    return data || [];
-  },
-};
+    // ════════════════════════════════════════════════════
+    // AVAILABILITY ENGINE (mismo que Fase 2)
+    // ════════════════════════════════════════════════════
+    const AE = {
+      dayKey(date) { return ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'][date.getDay()]; },
+      toMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; },
+      overlaps(aI, aF, bI, bF) { return this.toMin(aI) < this.toMin(bF) && this.toMin(aF) > this.toMin(bI); },
 
-// ════════════════════════════════════════════════════
-// AVAILABILITY ENGINE (mismo que Fase 2)
-// ════════════════════════════════════════════════════
-const AE = {
-  dayKey(date) { return ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'][date.getDay()]; },
-  toMin(t) { const [h,m]=t.split(':').map(Number); return h*60+m; },
-  overlaps(aI,aF,bI,bF) { return this.toMin(aI)<this.toMin(bF) && this.toMin(aF)>this.toMin(bI); },
+      async getSlots(profId, dateStr, durMin) {
+        const [profs, citas, bloqueos, excepciones] = await Promise.all([
+          DB.getProfesionales(), DB.getCitas(), DB.getBloqueos(), DB.getExcepciones()
+        ]);
+        const prof = profs.find(p => p.id === profId);
+        if (!prof) return [];
+        const date = new Date(dateStr + 'T12:00:00');
+        const dk = this.dayKey(date);
+        if (excepciones.some(e => e.prof_id === profId && e.fecha === dateStr && e.tipo === 'dia_libre')) return [];
+        let horario = prof.horario[dk];
+        const excH = excepciones.find(e => e.prof_id === profId && e.fecha === dateStr && e.tipo === 'horario_especial');
+        if (excH) horario = { ini: excH.hora_ini, fin: excH.hora_fin };
+        if (!horario) return [];
+        const slots = [];
+        let cur = this.toMin(horario.ini);
+        const end = this.toMin(horario.fin);
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        while (cur + durMin <= end) {
+          const hh = String(Math.floor(cur / 60)).padStart(2, '0');
+          const mm = String(cur % 60).padStart(2, '0');
+          const sH = `${hh}:${mm}`;
+          const sEnd = cur + durMin;
+          const sHF = `${String(Math.floor(sEnd / 60)).padStart(2, '0')}:${String(sEnd % 60).padStart(2, '0')}`;
+          const bloq = bloqueos.some(b => b.prof_id === profId && b.fecha === dateStr && this.overlaps(sH, sHF, b.hora_ini, b.hora_fin));
+          const excB = excepciones.some(e => e.prof_id === profId && e.fecha === dateStr && e.tipo === 'bloqueo_horas' && this.overlaps(sH, sHF, e.hora_ini, e.hora_fin));
+          const ocup = citas.some(c => c.prof_id === profId && c.fecha === dateStr && c.estado !== 'cancelada' && this.overlaps(sH, sHF, c.hora, c.hora_fin));
+          const pasado = dateStr === todayStr && cur < (now.getHours() * 60 + now.getMinutes() + 30);
+          slots.push({ hora: sH, horaFin: sHF, libre: !bloq && !excB && !ocup && !pasado });
+          cur += 30;
+        }
+        return slots;
+      },
 
-  async getSlots(profId, dateStr, durMin) {
-    const [profs, citas, bloqueos, excepciones] = await Promise.all([
-      DB.getProfesionales(), DB.getCitas(), DB.getBloqueos(), DB.getExcepciones()
-    ]);
-    const prof = profs.find(p=>p.id===profId);
-    if (!prof) return [];
-    const date = new Date(dateStr+'T12:00:00');
-    const dk = this.dayKey(date);
-    if (excepciones.some(e=>e.prof_id===profId&&e.fecha===dateStr&&e.tipo==='dia_libre')) return [];
-    let horario = prof.horario[dk];
-    const excH = excepciones.find(e=>e.prof_id===profId&&e.fecha===dateStr&&e.tipo==='horario_especial');
-    if (excH) horario = {ini:excH.hora_ini, fin:excH.hora_fin};
-    if (!horario) return [];
-    const slots=[];
-    let cur = this.toMin(horario.ini);
-    const end = this.toMin(horario.fin);
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    while (cur + durMin <= end) {
-      const hh=String(Math.floor(cur/60)).padStart(2,'0');
-      const mm=String(cur%60).padStart(2,'0');
-      const sH=`${hh}:${mm}`;
-      const sEnd=cur+durMin;
-      const sHF=`${String(Math.floor(sEnd/60)).padStart(2,'0')}:${String(sEnd%60).padStart(2,'0')}`;
-      const bloq=bloqueos.some(b=>b.prof_id===profId&&b.fecha===dateStr&&this.overlaps(sH,sHF,b.hora_ini,b.hora_fin));
-      const excB=excepciones.some(e=>e.prof_id===profId&&e.fecha===dateStr&&e.tipo==='bloqueo_horas'&&this.overlaps(sH,sHF,e.hora_ini,e.hora_fin));
-      const ocup=citas.some(c=>c.prof_id===profId&&c.fecha===dateStr&&c.estado!=='cancelada'&&this.overlaps(sH,sHF,c.hora,c.hora_fin));
-      const pasado=dateStr===todayStr&&cur<(now.getHours()*60+now.getMinutes()+30);
-      slots.push({hora:sH, horaFin:sHF, libre:!bloq&&!excB&&!ocup&&!pasado});
-      cur+=30;
-    }
-    return slots;
-  },
+      async getAvailableDays(profIds, yearMonth, durMin) {
+        const [y, m] = yearMonth.split('-').map(Number);
+        const daysInMonth = new Date(y, m, 0).getDate();
+        const available = new Set();
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const profs = await DB.getProfesionales();
 
-  async getAvailableDays(profIds, yearMonth, durMin) {
-    const [y,m] = yearMonth.split('-').map(Number);
-    const daysInMonth = new Date(y,m,0).getDate();
-    const available = new Set();
-    const today = new Date(); today.setHours(0,0,0,0);
-    const profs = await DB.getProfesionales();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const ds = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          if (new Date(ds + 'T12:00:00') < today) continue;
+          const filteredProfs = profIds === 'auto' ? profs : profs.filter(p => profIds.includes(p.id));
+          for (const prof of filteredProfs) {
+            const slots = await this.getSlots(prof.id, ds, durMin);
+            if (slots.some(s => s.libre)) { available.add(d); break; }
+          }
+        }
+        return available;
+      },
 
-    for (let d=1; d<=daysInMonth; d++) {
-      const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      if (new Date(ds+'T12:00:00') < today) continue;
-      const filteredProfs = profIds==='auto' ? profs : profs.filter(p=>profIds.includes(p.id));
-      for (const prof of filteredProfs) {
-        const slots = await this.getSlots(prof.id, ds, durMin);
-        if (slots.some(s=>s.libre)) { available.add(d); break; }
+      async autoAssign(serviceId, dateStr, hora) {
+        const servs = await DB.getServicios();
+        const serv = servs.find(s => s.id === serviceId);
+        if (!serv) return null;
+        const profIds = serv.prof_ids || serv.profIds || [];
+        for (const profId of profIds) {
+          const slots = await this.getSlots(profId, dateStr, serv.duracion_min || serv.dur);
+          if (slots.find(s => s.hora === hora && s.libre)) return profId;
+        }
+        return null;
+      }
+    };
+
+    // ════════════════════════════════════════════════════
+    // WIZARD STATE
+    // ════════════════════════════════════════════════════
+    const S = {
+      step: 1, servicioId: null, profId: 'auto', fecha: null, hora: null, horaFin: null,
+      calYear: null, calMonth: null,
+      citaRef: null, clientSecret: null, importeCentimos: 0,
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const now = new Date();
+      S.calYear = now.getFullYear(); S.calMonth = now.getMonth() + 1;
+      await renderServiceGrid();
+      checkAuth();
+    });
+
+    // ── Auth check ──
+    async function checkAuth() {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (session) {
+        const { data: perfil } = await sbClient.from('perfiles').select('nombre').eq('id', session.user.id).single();
+        document.getElementById('navLoginBtn').textContent = perfil?.nombre || session.user.email?.split('@')[0] || 'Mi cuenta';
+        document.getElementById('accountStatus').textContent = `Conectado como ${perfil?.nombre || session.user.email}`;
+        if (perfil?.nombre) document.getElementById('pNombre').value = perfil.nombre;
+        document.getElementById('pEmail').value = session.user.email || '';
       }
     }
-    return available;
-  },
 
-  async autoAssign(serviceId, dateStr, hora) {
-    const servs = await DB.getServicios();
-    const serv = servs.find(s=>s.id===serviceId);
-    if (!serv) return null;
-    const profIds = serv.prof_ids || serv.profIds || [];
-    for (const profId of profIds) {
-      const slots = await this.getSlots(profId, dateStr, serv.duracion_min || serv.dur);
-      if (slots.find(s=>s.hora===hora&&s.libre)) return profId;
+    function openLogin() { window.location.href = 'mi-cuenta.html?redirect=reservar'; }
+
+    // ── Navigation ──
+    function goStep(n) {
+      if (n > S.step && !validateStep(S.step)) return;
+      document.getElementById(`step-${S.step}`).classList.remove('active');
+      S.step = n;
+      const el = document.getElementById(`step-${n}`);
+      if (el) {
+        el.classList.add('active');
+        updateProgress();
+        if (n === 2) renderProfGrid();
+        if (n === 3) renderCalendar();
+        if (n === 4) renderSlots();
+        if (n === 5) { }
+        if (n === 6) initPaymentStep();
+      }
     }
-    return null;
-  }
-};
 
-// ════════════════════════════════════════════════════
-// WIZARD STATE
-// ════════════════════════════════════════════════════
-const S = {
-  step:1, servicioId:null, profId:'auto', fecha:null, hora:null, horaFin:null,
-  calYear:null, calMonth:null,
-  citaRef:null, clientSecret:null, importeCentimos:0,
-};
+    function validateStep(n) {
+      hideErrors();
+      if (n === 1 && !S.servicioId) { showErr('err-1'); return false; }
+      if (n === 2 && !S.profId) { showErr('err-2'); return false; }
+      if (n === 3 && !S.fecha) { showErr('err-3'); return false; }
+      if (n === 4 && !S.hora) { showErr('err-4'); return false; }
+      if (n === 5) {
+        const nombre = document.getElementById('pNombre').value.trim();
+        const email = document.getElementById('pEmail').value.trim();
+        if (!nombre || !email || !email.includes('@')) { showErr('err-5'); return false; }
+      }
+      return true;
+    }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  const now = new Date();
-  S.calYear = now.getFullYear(); S.calMonth = now.getMonth()+1;
-  await renderServiceGrid();
-  checkAuth();
-});
+    function showErr(id) { const el = document.getElementById(id); if (el) el.classList.add('show'); }
+    function hideErrors() { document.querySelectorAll('.alert').forEach(e => e.classList.remove('show')); }
 
-// ── Auth check ──
-async function checkAuth() {
-  const { data: { session } } = await sbClient.auth.getSession();
-  if (session) {
-    const { data: perfil } = await sbClient.from('perfiles').select('nombre').eq('id', session.user.id).single();
-    document.getElementById('navLoginBtn').textContent = perfil?.nombre || session.user.email?.split('@')[0] || 'Mi cuenta';
-    document.getElementById('accountStatus').textContent = `Conectado como ${perfil?.nombre || session.user.email}`;
-    if (perfil?.nombre) document.getElementById('pNombre').value = perfil.nombre;
-    document.getElementById('pEmail').value = session.user.email || '';
-  }
-}
+    function updateProgress() {
+      for (let i = 1; i <= 6; i++) {
+        const el = document.querySelector(`[data-step="${i}"]`);
+        if (!el) continue;
+        el.classList.remove('active', 'done');
+        if (i < S.step) el.classList.add('done');
+        if (i === S.step) el.classList.add('active');
+        const conn = document.getElementById(`conn-${i}-${i + 1}`);
+        if (conn) conn.classList.toggle('done', i < S.step);
+      }
+    }
 
-function openLogin() { window.location.href = 'mi-cuenta.html?redirect=reservar'; }
-
-// ── Navigation ──
-function goStep(n) {
-  if (n > S.step && !validateStep(S.step)) return;
-  document.getElementById(`step-${S.step}`).classList.remove('active');
-  S.step = n;
-  const el = document.getElementById(`step-${n}`);
-  if (el) {
-    el.classList.add('active');
-    updateProgress();
-    if (n===2) renderProfGrid();
-    if (n===3) renderCalendar();
-    if (n===4) renderSlots();
-    if (n===5) {}
-    if (n===6) initPaymentStep();
-  }
-}
-
-function validateStep(n) {
-  hideErrors();
-  if (n===1 && !S.servicioId) { showErr('err-1'); return false; }
-  if (n===2 && !S.profId) { showErr('err-2'); return false; }
-  if (n===3 && !S.fecha) { showErr('err-3'); return false; }
-  if (n===4 && !S.hora) { showErr('err-4'); return false; }
-  if (n===5) {
-    const nombre=document.getElementById('pNombre').value.trim();
-    const email=document.getElementById('pEmail').value.trim();
-    if (!nombre||!email||!email.includes('@')) { showErr('err-5'); return false; }
-  }
-  return true;
-}
-
-function showErr(id) { const el=document.getElementById(id); if(el) el.classList.add('show'); }
-function hideErrors() { document.querySelectorAll('.alert').forEach(e=>e.classList.remove('show')); }
-
-function updateProgress() {
-  for (let i=1;i<=6;i++) {
-    const el=document.querySelector(`[data-step="${i}"]`);
-    if (!el) continue;
-    el.classList.remove('active','done');
-    if (i < S.step) el.classList.add('done');
-    if (i === S.step) el.classList.add('active');
-    const conn=document.getElementById(`conn-${i}-${i+1}`);
-    if (conn) conn.classList.toggle('done', i < S.step);
-  }
-}
-
-// ── STEP 1 ──
-async function renderServiceGrid() {
-  const servs = await DB.getServicios();
-  document.getElementById('serviceGrid').innerHTML = servs.map(s=>`
-    <div class="service-opt ${S.servicioId===s.id?'selected':''}" onclick="selectServicio('${s.id}')">
+    // ── STEP 1 ──
+    async function renderServiceGrid() {
+      const servs = await DB.getServicios();
+      document.getElementById('serviceGrid').innerHTML = servs.map(s => `
+    <div class="service-opt ${S.servicioId === s.id ? 'selected' : ''}" onclick="selectServicio('${s.id}')">
       <div class="service-opt-icon">${s.icono}</div>
       <div>
         <div class="service-opt-name">${s.nombre}</div>
-        <div class="service-opt-meta">${s.duracion_min||s.dur} min <span class="price-badge">${Number(s.precio).toFixed(2)} €</span></div>
+        <div class="service-opt-meta">${s.duracion_min || s.dur} min <span class="price-badge">${Number(s.precio).toFixed(2)} €</span></div>
       </div>
     </div>`).join('');
-}
-
-async function selectServicio(id) {
-  S.servicioId=id; S.profId='auto'; S.fecha=null; S.hora=null;
-  await renderServiceGrid();
-}
-
-// ── STEP 2 ──
-async function renderProfGrid() {
-  const [servs, profs] = await Promise.all([DB.getServicios(), DB.getProfesionales()]);
-  const serv = servs.find(s=>s.id===S.servicioId);
-  if (!serv) return;
-  const profIds = serv.prof_ids || serv.profIds || [];
-  const filteredProfs = profs.filter(p=>profIds.includes(p.id));
-  const today = new Date();
-  const profHtml = await Promise.all(filteredProfs.map(async p => {
-    let avDays=0;
-    for (let d=0;d<14;d++) {
-      const dd=new Date(today); dd.setDate(today.getDate()+d);
-      const ds=dd.toISOString().split('T')[0];
-      const slots=await AE.getSlots(p.id,ds,serv.duracion_min||serv.dur);
-      if (slots.some(s=>s.libre)) avDays++;
     }
-    return `<div class="prof-opt ${S.profId===p.id?'selected':''}" onclick="selectProf('${p.id}')">
+
+    async function selectServicio(id) {
+      S.servicioId = id; S.profId = 'auto'; S.fecha = null; S.hora = null;
+      await renderServiceGrid();
+    }
+
+    // ── STEP 2 ──
+    async function renderProfGrid() {
+      const [servs, profs] = await Promise.all([DB.getServicios(), DB.getProfesionales()]);
+      const serv = servs.find(s => s.id === S.servicioId);
+      if (!serv) return;
+      const profIds = serv.prof_ids || serv.profIds || [];
+      const filteredProfs = profs.filter(p => profIds.includes(p.id));
+      const today = new Date();
+      const profHtml = await Promise.all(filteredProfs.map(async p => {
+        let avDays = 0;
+        for (let d = 0; d < 14; d++) {
+          const dd = new Date(today); dd.setDate(today.getDate() + d);
+          const ds = dd.toISOString().split('T')[0];
+          const slots = await AE.getSlots(p.id, ds, serv.duracion_min || serv.dur);
+          if (slots.some(s => s.libre)) avDays++;
+        }
+        return `<div class="prof-opt ${S.profId === p.id ? 'selected' : ''}" onclick="selectProf('${p.id}')">
       <div class="prof-avatar" style="background:${p.color}">${p.iniciales}</div>
       <div class="prof-name">${p.nombre}</div><div class="prof-role">${p.rol}</div>
-      <div class="prof-avail">${avDays>0?avDays+' días dispo.':'Sin disponibilidad'}</div>
+      <div class="prof-avail">${avDays > 0 ? avDays + ' días dispo.' : 'Sin disponibilidad'}</div>
     </div>`;
-  }));
-  document.getElementById('profGrid').innerHTML = profHtml.join('');
-  document.getElementById('autoOpt').classList.toggle('selected', S.profId==='auto');
-}
+      }));
+      document.getElementById('profGrid').innerHTML = profHtml.join('');
+      document.getElementById('autoOpt').classList.toggle('selected', S.profId === 'auto');
+    }
 
-function selectProfesional(id) { S.profId=id; S.fecha=null; S.hora=null; renderProfGrid(); }
-function selectProf(id) { S.profId=id; document.getElementById('autoOpt').classList.remove('selected'); renderProfGrid(); }
+    function selectProfesional(id) { S.profId = id; S.fecha = null; S.hora = null; renderProfGrid(); }
+    function selectProf(id) { S.profId = id; document.getElementById('autoOpt').classList.remove('selected'); renderProfGrid(); }
 
-// ── STEP 3 ──
-async function renderCalendar() {
-  const servs = await DB.getServicios();
-  const serv = servs.find(s=>s.id===S.servicioId);
-  const profIds = S.profId==='auto' ? 'auto' : [S.profId];
-  const ym=`${S.calYear}-${String(S.calMonth).padStart(2,'0')}`;
-  const availDays = await AE.getAvailableDays(profIds, ym, serv?serv.duracion_min||serv.dur:60);
-  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  document.getElementById('calMonthLabel').textContent=`${monthNames[S.calMonth-1]} ${S.calYear}`;
-  const now=new Date();
-  document.getElementById('calPrev').disabled=S.calYear===now.getFullYear()&&S.calMonth===now.getMonth()+1;
-  const firstDay=new Date(S.calYear,S.calMonth-1,1);
-  const daysInMonth=new Date(S.calYear,S.calMonth,0).getDate();
-  let offset=firstDay.getDay()-1; if(offset<0) offset=6;
-  const prevDays=new Date(S.calYear,S.calMonth-1,0).getDate();
-  const today=new Date(); today.setHours(0,0,0,0);
-  let html='';
-  for (let i=offset;i>0;i--) html+=`<div class="cal-day other-month">${prevDays-i+1}</div>`;
-  for (let d=1;d<=daysInMonth;d++) {
-    const date=new Date(S.calYear,S.calMonth-1,d);
-    const ds=`${S.calYear}-${String(S.calMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isPast=date<today, isSun=date.getDay()===0, isAvail=availDays.has(d);
-    const isSel=S.fecha===ds, isToday=date.getTime()===today.getTime();
-    let cls='cal-day';
-    if (isSel) cls+=' selected';
-    else if (isPast||isSun||!isAvail) cls+=' past';
-    else cls+=' available';
-    if (isToday&&!isSel) cls+=' today';
-    html+=`<div class="${cls}" ${!isPast&&!isSun&&isAvail?`onclick="selectDate('${ds}')"`:''}>${d}</div>`;
-  }
-  document.getElementById('calDays').innerHTML=html;
-}
-
-function selectDate(ds) { S.fecha=ds; S.hora=null; renderCalendar(); }
-function changeMonth(dir) {
-  S.calMonth+=dir;
-  if(S.calMonth>12){S.calMonth=1;S.calYear++;}
-  if(S.calMonth<1){S.calMonth=12;S.calYear--;}
-  renderCalendar();
-}
-
-// ── STEP 4 ──
-async function renderSlots() {
-  const servs = await DB.getServicios();
-  const serv=servs.find(s=>s.id===S.servicioId);
-  const area=document.getElementById('slotsArea');
-  if (!S.fecha) { area.innerHTML='<div class="no-slots"><strong>Sin fecha</strong>Vuelve atrás.</div>'; return; }
-  const dateObj=new Date(S.fecha+'T12:00:00');
-  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  document.getElementById('step4Sub').textContent=`${dias[dateObj.getDay()]} ${dateObj.getDate()} de ${meses[dateObj.getMonth()]}`;
-  const durMin=serv?serv.duracion_min||serv.dur:60;
-  let allSlots=[];
-  if (S.profId==='auto') {
-    const profs=await DB.getProfesionales();
-    const profIds=serv?.prof_ids||serv?.profIds||[];
-    const map={};
-    for (const p of profs.filter(p=>profIds.includes(p.id))) {
-      for (const s of await AE.getSlots(p.id,S.fecha,durMin)) {
-        if (!map[s.hora]) map[s.hora]={...s,libre:false};
-        if (s.libre) map[s.hora].libre=true;
+    // ── STEP 3 ──
+    async function renderCalendar() {
+      const servs = await DB.getServicios();
+      const serv = servs.find(s => s.id === S.servicioId);
+      const profIds = S.profId === 'auto' ? 'auto' : [S.profId];
+      const ym = `${S.calYear}-${String(S.calMonth).padStart(2, '0')}`;
+      const availDays = await AE.getAvailableDays(profIds, ym, serv ? serv.duracion_min || serv.dur : 60);
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      document.getElementById('calMonthLabel').textContent = `${monthNames[S.calMonth - 1]} ${S.calYear}`;
+      const now = new Date();
+      document.getElementById('calPrev').disabled = S.calYear === now.getFullYear() && S.calMonth === now.getMonth() + 1;
+      const firstDay = new Date(S.calYear, S.calMonth - 1, 1);
+      const daysInMonth = new Date(S.calYear, S.calMonth, 0).getDate();
+      let offset = firstDay.getDay() - 1; if (offset < 0) offset = 6;
+      const prevDays = new Date(S.calYear, S.calMonth - 1, 0).getDate();
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      let html = '';
+      for (let i = offset; i > 0; i--) html += `<div class="cal-day other-month">${prevDays - i + 1}</div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(S.calYear, S.calMonth - 1, d);
+        const ds = `${S.calYear}-${String(S.calMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const isPast = date < today, isSun = date.getDay() === 0, isAvail = availDays.has(d);
+        const isSel = S.fecha === ds, isToday = date.getTime() === today.getTime();
+        let cls = 'cal-day';
+        if (isSel) cls += ' selected';
+        else if (isPast || isSun || !isAvail) cls += ' past';
+        else cls += ' available';
+        if (isToday && !isSel) cls += ' today';
+        html += `<div class="${cls}" ${!isPast && !isSun && isAvail ? `onclick="selectDate('${ds}')"` : ''}>${d}</div>`;
       }
+      document.getElementById('calDays').innerHTML = html;
     }
-    allSlots=Object.values(map).sort((a,b)=>a.hora.localeCompare(b.hora));
-  } else {
-    allSlots=await AE.getSlots(S.profId,S.fecha,durMin);
-  }
-  const free=allSlots.filter(s=>s.libre);
-  if (!allSlots.length) { area.innerHTML='<div class="no-slots"><strong>Sin horario este día</strong>El profesional no trabaja este día.</div>'; return; }
-  if (!free.length) { area.innerHTML='<div class="no-slots"><strong>Sin disponibilidad</strong>Todos los horarios están ocupados. Prueba con otra fecha.</div>'; return; }
-  const man=allSlots.filter(s=>parseInt(s.hora)<14);
-  const tar=allSlots.filter(s=>parseInt(s.hora)>=14);
-  let html='';
-  if (man.some(s=>s.libre)) {
-    html+='<div class="slots-header">☀️ Mañana</div><div class="slots-grid">';
-    for (const s of man) {
-      const sel=S.hora===s.hora;
-      html+=`<button class="slot-btn${!s.libre?' taken':''}${sel?' selected':''}" ${s.libre?`onclick="selectSlot('${s.hora}','${s.horaFin}')"`:''} ${!s.libre?'disabled':''}>${s.hora}${!s.libre?'<br><small>Ocupado</small>':''}</button>`;
+
+    function selectDate(ds) { S.fecha = ds; S.hora = null; renderCalendar(); }
+    function changeMonth(dir) {
+      S.calMonth += dir;
+      if (S.calMonth > 12) { S.calMonth = 1; S.calYear++; }
+      if (S.calMonth < 1) { S.calMonth = 12; S.calYear--; }
+      renderCalendar();
     }
-    html+='</div>';
-  }
-  if (tar.some(s=>s.libre)) {
-    html+='<div class="slots-header">🌅 Tarde</div><div class="slots-grid">';
-    for (const s of tar) {
-      const sel=S.hora===s.hora;
-      html+=`<button class="slot-btn${!s.libre?' taken':''}${sel?' selected':''}" ${s.libre?`onclick="selectSlot('${s.hora}','${s.horaFin}')"`:''} ${!s.libre?'disabled':''}>${s.hora}${!s.libre?'<br><small>Ocupado</small>':''}</button>`;
+
+    // ── STEP 4 ──
+    async function renderSlots() {
+      const servs = await DB.getServicios();
+      const serv = servs.find(s => s.id === S.servicioId);
+      const area = document.getElementById('slotsArea');
+      if (!S.fecha) { area.innerHTML = '<div class="no-slots"><strong>Sin fecha</strong>Vuelve atrás.</div>'; return; }
+      const dateObj = new Date(S.fecha + 'T12:00:00');
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      document.getElementById('step4Sub').textContent = `${dias[dateObj.getDay()]} ${dateObj.getDate()} de ${meses[dateObj.getMonth()]}`;
+      const durMin = serv ? serv.duracion_min || serv.dur : 60;
+      let allSlots = [];
+      if (S.profId === 'auto') {
+        const profs = await DB.getProfesionales();
+        const profIds = serv?.prof_ids || serv?.profIds || [];
+        const map = {};
+        for (const p of profs.filter(p => profIds.includes(p.id))) {
+          for (const s of await AE.getSlots(p.id, S.fecha, durMin)) {
+            if (!map[s.hora]) map[s.hora] = { ...s, libre: false };
+            if (s.libre) map[s.hora].libre = true;
+          }
+        }
+        allSlots = Object.values(map).sort((a, b) => a.hora.localeCompare(b.hora));
+      } else {
+        allSlots = await AE.getSlots(S.profId, S.fecha, durMin);
+      }
+      const free = allSlots.filter(s => s.libre);
+      if (!allSlots.length) { area.innerHTML = '<div class="no-slots"><strong>Sin horario este día</strong>El profesional no trabaja este día.</div>'; return; }
+      if (!free.length) { area.innerHTML = '<div class="no-slots"><strong>Sin disponibilidad</strong>Todos los horarios están ocupados. Prueba con otra fecha.</div>'; return; }
+      const man = allSlots.filter(s => parseInt(s.hora) < 14);
+      const tar = allSlots.filter(s => parseInt(s.hora) >= 14);
+      let html = '';
+      if (man.some(s => s.libre)) {
+        html += '<div class="slots-header">☀️ Mañana</div><div class="slots-grid">';
+        for (const s of man) {
+          const sel = S.hora === s.hora;
+          html += `<button class="slot-btn${!s.libre ? ' taken' : ''}${sel ? ' selected' : ''}" ${s.libre ? `onclick="selectSlot('${s.hora}','${s.horaFin}')"` : ''} ${!s.libre ? 'disabled' : ''}>${s.hora}${!s.libre ? '<br><small>Ocupado</small>' : ''}</button>`;
+        }
+        html += '</div>';
+      }
+      if (tar.some(s => s.libre)) {
+        html += '<div class="slots-header">🌅 Tarde</div><div class="slots-grid">';
+        for (const s of tar) {
+          const sel = S.hora === s.hora;
+          html += `<button class="slot-btn${!s.libre ? ' taken' : ''}${sel ? ' selected' : ''}" ${s.libre ? `onclick="selectSlot('${s.hora}','${s.horaFin}')"` : ''} ${!s.libre ? 'disabled' : ''}>${s.hora}${!s.libre ? '<br><small>Ocupado</small>' : ''}</button>`;
+        }
+        html += '</div>';
+      }
+      area.innerHTML = html;
     }
-    html+='</div>';
-  }
-  area.innerHTML=html;
-}
 
-function selectSlot(hora,horaFin) { S.hora=hora; S.horaFin=horaFin; renderSlots(); }
+    function selectSlot(hora, horaFin) { S.hora = hora; S.horaFin = horaFin; renderSlots(); }
 
-// ── STEP 6: Init payment ──
-async function initPaymentStep() {
-  const servs = await DB.getServicios();
-  const serv=servs.find(s=>s.id===S.servicioId);
-  const profs=await DB.getProfesionales();
-  let profNombre=S.profId==='auto'?'Asignación automática':(profs.find(p=>p.id===S.profId)||{nombre:'—'}).nombre;
-  const dateObj=new Date(S.fecha+'T12:00:00');
-  const dias=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    // ── STEP 6: Init payment ──
+    async function initPaymentStep() {
+      const servs = await DB.getServicios();
+      const serv = servs.find(s => s.id === S.servicioId);
+      const profs = await DB.getProfesionales();
+      let profNombre = S.profId === 'auto' ? 'Asignación automática' : (profs.find(p => p.id === S.profId) || { nombre: '—' }).nombre;
+      const dateObj = new Date(S.fecha + 'T12:00:00');
+      const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
-  document.getElementById('paymentSummary').innerHTML=`
-    <div class="confirm-row"><div class="confirm-icon">${serv?serv.icono:'📅'}</div><div><div class="confirm-label">Servicio</div><div class="confirm-val">${serv?serv.nombre:''} · ${serv?serv.duracion_min||serv.dur:60} min</div></div></div>
+      document.getElementById('paymentSummary').innerHTML = `
+    <div class="confirm-row"><div class="confirm-icon">${serv ? serv.icono : '📅'}</div><div><div class="confirm-label">Servicio</div><div class="confirm-val">${serv ? serv.nombre : ''} · ${serv ? serv.duracion_min || serv.dur : 60} min</div></div></div>
     <div class="confirm-row"><div class="confirm-icon">👤</div><div><div class="confirm-label">Profesional</div><div class="confirm-val">${profNombre}</div></div></div>
     <div class="confirm-row"><div class="confirm-icon">📅</div><div><div class="confirm-label">Fecha y hora</div><div class="confirm-val">${dias[dateObj.getDay()]} ${dateObj.getDate()} de ${meses[dateObj.getMonth()]} · ${S.hora} – ${S.horaFin}</div></div></div>
-    <div class="price-line"><span>Total a pagar</span><strong>${Number(serv?.precio||0).toFixed(2)} €</strong></div>`;
+    <div class="price-line"><span>Total a pagar</span><strong>${Number(serv?.precio || 0).toFixed(2)} €</strong></div>`;
 
-  // Si ya tenemos clientSecret (usuario volvió atrás), no volver a llamar
-  if (S.clientSecret) {
-    mountStripeElements(S.clientSecret);
-    return;
-  }
+      // Si ya tenemos clientSecret (usuario volvió atrás), no volver a llamar
+      if (S.clientSecret) {
+        mountStripeElements(S.clientSecret);
+        return;
+      }
 
-  // Llamar a Edge Function create-payment
-  const nombre=document.getElementById('pNombre').value.trim();
-  const email=document.getElementById('pEmail').value.trim();
-  const tel=document.getElementById('pTel').value.trim();
-  const nota=document.getElementById('pNota').value.trim();
+      // Llamar a Edge Function create-payment
+      const nombre = document.getElementById('pNombre').value.trim();
+      const email = document.getElementById('pEmail').value.trim();
+      const tel = document.getElementById('pTel').value.trim();
+      const nota = document.getElementById('pNota').value.trim();
 
-  // Resolver profId final si es auto
-  let profId=S.profId;
-  if (profId==='auto') {
-    profId = await AE.autoAssign(S.servicioId, S.fecha, S.hora);
-    if (!profId) {
-      showErr('err-6');
-      document.getElementById('err-6').textContent='El horario ya no está disponible. Por favor vuelve a elegir fecha y hora.';
-      goStep(4); return;
+      // Resolver profId final si es auto
+      let profId = S.profId;
+      if (profId === 'auto') {
+        profId = await AE.autoAssign(S.servicioId, S.fecha, S.hora);
+        if (!profId) {
+          showErr('err-6');
+          document.getElementById('err-6').textContent = 'El horario ya no está disponible. Por favor vuelve a elegir fecha y hora.';
+          goStep(4); return;
+        }
+      }
+
+      const { data: { session } } = await sbClient.auth.getSession();
+
+      try {
+        document.getElementById('payBtn').disabled = true;
+        const resp = await fetch(`${CONFIG.EDGE_FUNCTIONS_URL}/create-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': session ? `Bearer ${session.access_token}` : '' },
+          body: JSON.stringify({
+            servicioId: S.servicioId,
+            profId,
+            fecha: S.fecha,
+            hora: S.hora,
+            horaFin: S.horaFin,
+            durMin: serv?.duracion_min || serv?.dur || 60,
+            pacienteNombre: nombre,
+            pacienteEmail: email,
+            pacienteTel: tel || null,
+            nota: nota || null,
+            usuarioId: session?.user?.id || null,
+          })
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          document.getElementById('err-6').textContent = err.error || 'Error al preparar el pago.';
+          showErr('err-6');
+          document.getElementById('payBtn').disabled = false;
+          return;
+        }
+
+        const { clientSecret, citaRef, importe } = await resp.json();
+        S.clientSecret = clientSecret;
+        S.citaRef = citaRef;
+        S.importeCentimos = importe;
+
+        mountStripeElements(clientSecret);
+        document.getElementById('payBtn').disabled = false;
+
+      } catch (err) {
+        // En modo demo: simular pago exitoso
+        if (DB._isDemo()) {
+          simulateDemoPayment(nombre, email, profId, serv);
+          return;
+        }
+        document.getElementById('err-6').textContent = 'Error de conexión. Inténtalo de nuevo.';
+        showErr('err-6');
+        document.getElementById('payBtn').disabled = false;
+      }
     }
-  }
 
-  const { data:{ session } } = await sbClient.auth.getSession();
-
-  try {
-    document.getElementById('payBtn').disabled=true;
-    const resp = await fetch(`${CONFIG.EDGE_FUNCTIONS_URL}/create-payment`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization': session ? `Bearer ${session.access_token}` : '' },
-      body: JSON.stringify({
-        servicioId: S.servicioId,
-        profId,
-        fecha: S.fecha,
-        hora: S.hora,
-        horaFin: S.horaFin,
-        durMin: serv?.duracion_min||serv?.dur||60,
-        pacienteNombre: nombre,
-        pacienteEmail: email,
-        pacienteTel: tel||null,
-        nota: nota||null,
-        usuarioId: session?.user?.id || null,
-      })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      document.getElementById('err-6').textContent = err.error || 'Error al preparar el pago.';
-      showErr('err-6');
-      document.getElementById('payBtn').disabled=false;
-      return;
+    function mountStripeElements(clientSecret) {
+      if (stripeElements) return; // ya montado
+      const appearance = {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#1A8C6E',
+          colorBackground: '#F7F8FA',
+          colorText: '#111827',
+          borderRadius: '8px',
+          fontFamily: 'DM Sans, system-ui, sans-serif',
+        }
+      };
+      stripeElements = stripeClient.elements({ clientSecret, appearance });
+      paymentElement = stripeElements.create('payment');
+      paymentElement.mount('#payment-element');
     }
 
-    const { clientSecret, citaRef, importe } = await resp.json();
-    S.clientSecret = clientSecret;
-    S.citaRef = citaRef;
-    S.importeCentimos = importe;
+    // ── PROCESAR PAGO ──
+    async function procesarPago() {
+      if (DB._isDemo()) return; // en demo ya se maneja en initPaymentStep
 
-    mountStripeElements(clientSecret);
-    document.getElementById('payBtn').disabled=false;
+      const payBtn = document.getElementById('payBtn');
+      const payBtnText = document.getElementById('payBtnText');
+      const formArea = document.getElementById('paymentFormArea');
+      const processing = document.getElementById('paymentProcessing');
 
-  } catch(err) {
-    // En modo demo: simular pago exitoso
-    if (DB._isDemo()) {
-      simulateDemoPayment(nombre, email, profId, serv);
-      return;
+      payBtn.disabled = true;
+      payBtnText.textContent = 'Procesando...';
+
+      const { error } = await stripeClient.confirmPayment({
+        elements: stripeElements,
+        confirmParams: {
+          return_url: window.location.origin + '/reservar.html?success=1',
+        },
+        redirect: 'if_required', // no redirigir si no es necesario (mayoría de tarjetas)
+      });
+
+      if (error) {
+        const stripeErr = document.getElementById('stripe-error');
+        stripeErr.textContent = error.message || 'Ha ocurrido un error con el pago.';
+        stripeErr.classList.add('show');
+        payBtn.disabled = false;
+        payBtnText.textContent = 'Pagar y confirmar cita';
+      } else {
+        // Pago exitoso — el webhook se encargará de confirmar la cita en DB
+        // Mostrar pantalla de éxito
+        formArea.style.display = 'none';
+        processing.style.display = 'none';
+        mostrarExito();
+      }
     }
-    document.getElementById('err-6').textContent='Error de conexión. Inténtalo de nuevo.';
-    showErr('err-6');
-    document.getElementById('payBtn').disabled=false;
-  }
-}
 
-function mountStripeElements(clientSecret) {
-  if (stripeElements) return; // ya montado
-  const appearance = {
-    theme: 'stripe',
-    variables: {
-      colorPrimary: '#1A8C6E',
-      colorBackground: '#F7F8FA',
-      colorText: '#111827',
-      borderRadius: '8px',
-      fontFamily: 'DM Sans, system-ui, sans-serif',
-    }
-  };
-  stripeElements = stripeClient.elements({ clientSecret, appearance });
-  paymentElement = stripeElements.create('payment');
-  paymentElement.mount('#payment-element');
-}
+    async function mostrarExito() {
+      document.getElementById('step-6').classList.remove('active');
+      document.getElementById('step-success').classList.add('active');
+      document.getElementById('bookingRef').textContent = S.citaRef || 'MLB-DEMO';
+      const pEmail = document.getElementById('pEmail').value;
+      document.getElementById('emailNote').textContent = `Te hemos enviado la confirmación a ${pEmail}. Recibirás un recordatorio 24h antes de tu cita.`;
 
-// ── PROCESAR PAGO ──
-async function procesarPago() {
-  if (DB._isDemo()) return; // en demo ya se maneja en initPaymentStep
-
-  const payBtn = document.getElementById('payBtn');
-  const payBtnText = document.getElementById('payBtnText');
-  const formArea = document.getElementById('paymentFormArea');
-  const processing = document.getElementById('paymentProcessing');
-
-  payBtn.disabled=true;
-  payBtnText.textContent='Procesando...';
-
-  const { error } = await stripeClient.confirmPayment({
-    elements: stripeElements,
-    confirmParams: {
-      return_url: window.location.origin + '/reservar.html?success=1',
-    },
-    redirect: 'if_required', // no redirigir si no es necesario (mayoría de tarjetas)
-  });
-
-  if (error) {
-    const stripeErr = document.getElementById('stripe-error');
-    stripeErr.textContent = error.message || 'Ha ocurrido un error con el pago.';
-    stripeErr.classList.add('show');
-    payBtn.disabled=false;
-    payBtnText.textContent='Pagar y confirmar cita';
-  } else {
-    // Pago exitoso — el webhook se encargará de confirmar la cita en DB
-    // Mostrar pantalla de éxito
-    formArea.style.display='none';
-    processing.style.display='none';
-    mostrarExito();
-  }
-}
-
-async function mostrarExito() {
-  document.getElementById('step-6').classList.remove('active');
-  document.getElementById('step-success').classList.add('active');
-  document.getElementById('bookingRef').textContent=S.citaRef||'MLB-DEMO';
-  const pEmail=document.getElementById('pEmail').value;
-  document.getElementById('emailNote').textContent=`Te hemos enviado la confirmación a ${pEmail}. Recibirás un recordatorio 24h antes de tu cita.`;
-
-  const servs=await DB.getServicios();
-  const profs=await DB.getProfesionales();
-  const serv=servs.find(s=>s.id===S.servicioId);
-  const prof=profs.find(p=>p.id===S.profId)||{nombre:'Profesional asignado'};
-  const dateObj=new Date(S.fecha+'T12:00:00');
-  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  document.getElementById('successSummary').innerHTML=`
-    <div class="ss-row"><span class="ss-label">Servicio</span><span class="ss-val">${serv?serv.nombre:''}</span></div>
+      const servs = await DB.getServicios();
+      const profs = await DB.getProfesionales();
+      const serv = servs.find(s => s.id === S.servicioId);
+      const prof = profs.find(p => p.id === S.profId) || { nombre: 'Profesional asignado' };
+      const dateObj = new Date(S.fecha + 'T12:00:00');
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      document.getElementById('successSummary').innerHTML = `
+    <div class="ss-row"><span class="ss-label">Servicio</span><span class="ss-val">${serv ? serv.nombre : ''}</span></div>
     <div class="ss-row"><span class="ss-label">Profesional</span><span class="ss-val">${prof.nombre}</span></div>
     <div class="ss-row"><span class="ss-label">Fecha</span><span class="ss-val">${dias[dateObj.getDay()]} ${dateObj.getDate()} de ${meses[dateObj.getMonth()]}</span></div>
     <div class="ss-row"><span class="ss-label">Hora</span><span class="ss-val">${S.hora} – ${S.horaFin}</span></div>
-    <div class="ss-row"><span class="ss-label">Importe pagado</span><span class="ss-val">${(S.importeCentimos/100).toFixed(2)} €</span></div>`;
-}
+    <div class="ss-row"><span class="ss-label">Importe pagado</span><span class="ss-val">${(S.importeCentimos / 100).toFixed(2)} €</span></div>`;
+    }
 
-// ── DEMO MODE: simular pago sin backend ──
-async function simulateDemoPayment(nombre, email, profId, serv) {
-  document.getElementById('paymentFormArea').innerHTML=`
+    // ── DEMO MODE: simular pago sin backend ──
+    async function simulateDemoPayment(nombre, email, profId, serv) {
+      document.getElementById('paymentFormArea').innerHTML = `
     <div style="background:var(--sky);border:1.5px solid var(--blue-m);border-radius:var(--r-md);padding:20px;margin-bottom:16px;">
       <h3 style="color:var(--navy);margin-bottom:8px;font-size:1rem">Modo demo activo</h3>
       <p style="font-size:.85rem;color:var(--muted)">Para activar pagos reales, configura Supabase + Stripe según las instrucciones del archivo <strong>edge-functions.js</strong>.</p>
@@ -922,46 +1800,49 @@ async function simulateDemoPayment(nombre, email, profId, serv) {
     <div class="confirm-card" id="paymentSummary"></div>
     <button class="btn btn-pay" onclick="completarDemo()">Simular pago exitoso (demo)</button>`;
 
-  S.citaRef = 'MLB-' + Date.now().toString(36).toUpperCase().slice(-6);
-  S.importeCentimos = Math.round((serv?.precio||0)*100);
+      S.citaRef = 'MLB-' + Date.now().toString(36).toUpperCase().slice(-6);
+      S.importeCentimos = Math.round((serv?.precio || 0) * 100);
 
-  // Guardar en localStorage para demo
-  const citas = JSON.parse(localStorage.getItem('mlb_citas_demo')||'[]');
-  citas.push({ id: S.citaRef, ref: S.citaRef, prof_id: profId, servicio_id: S.servicioId,
-    fecha: S.fecha, hora: S.hora, hora_fin: S.horaFin, estado: 'confirmada',
-    paciente_nombre: nombre, paciente_email: email });
-  localStorage.setItem('mlb_citas_demo', JSON.stringify(citas));
-  await renderServiceGrid(); // re-render
-}
+      // Guardar en localStorage para demo
+      const citas = JSON.parse(localStorage.getItem('mlb_citas_demo') || '[]');
+      citas.push({
+        id: S.citaRef, ref: S.citaRef, prof_id: profId, servicio_id: S.servicioId,
+        fecha: S.fecha, hora: S.hora, hora_fin: S.horaFin, estado: 'confirmada',
+        paciente_nombre: nombre, paciente_email: email
+      });
+      localStorage.setItem('mlb_citas_demo', JSON.stringify(citas));
+      await renderServiceGrid(); // re-render
+    }
 
-async function completarDemo() {
-  S.profId = S.profId==='auto' ? (await AE.autoAssign(S.servicioId, S.fecha, S.hora) || 'ana') : S.profId;
-  await mostrarExito();
-}
-
-// ── Handle return from Stripe redirect (3D Secure) ──
-window.addEventListener('load', async () => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('success')==='1') {
-    const pi = params.get('payment_intent');
-    if (pi) {
-      // Recuperar datos de sesión del wizard si los guardamos en sessionStorage
-      try {
-        const saved = JSON.parse(sessionStorage.getItem('mlb_wizard_state')||'{}');
-        Object.assign(S, saved);
-      } catch {}
+    async function completarDemo() {
+      S.profId = S.profId === 'auto' ? (await AE.autoAssign(S.servicioId, S.fecha, S.hora) || 'ana') : S.profId;
       await mostrarExito();
     }
-  }
-});
 
-// Guardar estado del wizard en sessionStorage por si hay redirect
-window.addEventListener('beforeunload', () => {
-  sessionStorage.setItem('mlb_wizard_state', JSON.stringify({
-    servicioId:S.servicioId, profId:S.profId, fecha:S.fecha,
-    hora:S.hora, horaFin:S.horaFin, citaRef:S.citaRef, importeCentimos:S.importeCentimos
-  }));
-});
-</script>
+    // ── Handle return from Stripe redirect (3D Secure) ──
+    window.addEventListener('load', async () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === '1') {
+        const pi = params.get('payment_intent');
+        if (pi) {
+          // Recuperar datos de sesión del wizard si los guardamos en sessionStorage
+          try {
+            const saved = JSON.parse(sessionStorage.getItem('mlb_wizard_state') || '{}');
+            Object.assign(S, saved);
+          } catch { }
+          await mostrarExito();
+        }
+      }
+    });
+
+    // Guardar estado del wizard en sessionStorage por si hay redirect
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.setItem('mlb_wizard_state', JSON.stringify({
+        servicioId: S.servicioId, profId: S.profId, fecha: S.fecha,
+        hora: S.hora, horaFin: S.horaFin, citaRef: S.citaRef, importeCentimos: S.importeCentimos
+      }));
+    });
+  </script>
 </body>
+
 </html>

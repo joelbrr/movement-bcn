@@ -1,0 +1,31 @@
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+
+# Edge Functions — se despliegan con: npx supabase functions deploy <nombre>
+[functions.create-payment]
+verify_jwt = false   # permite llamadas desde el frontend sin JWT (invitados)
+
+[functions.stripe-webhook]
+verify_jwt = false   # Stripe no envía JWT, verificamos con firma HMAC propia
+
+[functions.send-reminder]
+verify_jwt = true    # solo se llama desde el scheduler interno de Supabase
