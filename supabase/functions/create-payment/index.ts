@@ -1,10 +1,15 @@
 // supabase/functions/create-payment/index.ts
 // Deploy: npx supabase functions deploy create-payment
 //
-// Required env vars (Supabase Dashboard > Settings > Edge Functions):
+// Required env vars (Supabase Dashboard > Settings > Edge Functions > Secrets):
 //   STRIPE_SECRET_KEY       = sk_test_... or sk_live_...
 //   SUPABASE_URL            = https://czehgzjlcoipectnqtsw.supabase.co
 //   SUPABASE_SERVICE_KEY    = eyJ... (service_role key, NOT anon)
+//   RESEND_API_KEY          = re_... (from Resend.com)
+//   CENTRO_EMAIL            = info@movementlabbcn.com
+//   CENTRO_NOMBRE           = Movement Lab Bcn
+//   CENTRO_TELEFONO         = +34 XXX XXX XXX
+//   CENTRO_DIRECCION        = Carrer Exemple 42, Barcelona
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -105,6 +110,40 @@ serve(async (req) => {
 
       if (citaErr) throw new Error("Error creando cita local: " + citaErr.message);
 
+      // --- NUEVO: PROGRAMAR RECORDATORIOS ---
+      const citaDate = new Date(`${fecha}T${hora}`);
+      const reminder24h = new Date(citaDate.getTime() - 24 * 60 * 60 * 1000);
+
+      await supabase.from("recordatorios").insert([
+        {
+          cita_id: cita.id,
+          tipo: "confirmacion",
+          estado: "pendiente",
+          scheduled_at: new Date().toISOString(),
+        },
+        {
+          cita_id: cita.id,
+          tipo: "recordatorio_24h",
+          estado: "pendiente",
+          scheduled_at: reminder24h.toISOString(),
+        },
+      ]);
+
+      // --- NUEVO: ENVIAR EMAIL DE CONFIRMACIÓN ---
+      try {
+        const { data: fullCita } = await supabase
+          .from("citas")
+          .select("*, profesionales(nombre), servicios(nombre)")
+          .eq("id", cita.id)
+          .single();
+
+        if (fullCita) {
+          await sendConfirmationEmail(fullCita, ref);
+        }
+      } catch (e) {
+        console.error("Error enviando email local:", e.message);
+      }
+
       return new Response(
         JSON.stringify({
           citaRef: ref,
@@ -202,3 +241,77 @@ serve(async (req) => {
     });
   }
 });
+
+// ── Email de confirmación de cita ──
+async function sendConfirmationEmail(cita: any, ref: string) {
+  const fechaFormateada = new Date(cita.fecha + "T12:00:00").toLocaleDateString(
+    "es-ES",
+    { weekday: "long", year: "numeric", month: "long", day: "numeric" }
+  );
+
+  const html = `<!DOCTYPE html>
+<html>
+<body style="font-family:sans-serif;color:#111827;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#0B2240;padding:20px 24px;border-radius:12px 12px 0 0">
+    <h1 style="color:white;font-size:1.3rem;margin:0">Reserva confirmada ✓</h1>
+    <p style="color:rgba(255,255,255,.6);margin:4px 0 0;font-size:.85rem">${Deno.env.get("CENTRO_NOMBRE") || "Movement Lab Bcn"}</p>
+  </div>
+  <div style="background:#F2FAF7;border:1px solid #E8F5F1;padding:20px 24px">
+    <p style="font-size:1rem;margin:0 0 16px">Hola <strong>${cita.paciente_nombre}</strong>,</p>
+    <p style="color:#6B7280;margin:0 0 20px">Tu cita ha sido confirmada. Aquí tienes los detalles:</p>
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="border-bottom:1px solid #E8F5F1">
+        <td style="padding:10px 0;color:#6B7280;font-size:.88rem">Servicio</td>
+        <td style="padding:10px 0;font-weight:600;font-size:.88rem">${cita.servicios?.nombre || cita.servicio_id}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #E8F5F1">
+        <td style="padding:10px 0;color:#6B7280;font-size:.88rem">Profesional</td>
+        <td style="padding:10px 0;font-weight:600;font-size:.88rem">${cita.profesionales?.nombre || cita.prof_id}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #E8F5F1">
+        <td style="padding:10px 0;color:#6B7280;font-size:.88rem">Fecha</td>
+        <td style="padding:10px 0;font-weight:600;font-size:.88rem">${fechaFormateada}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #E8F5F1">
+        <td style="padding:10px 0;color:#6B7280;font-size:.88rem">Hora</td>
+        <td style="padding:10px 0;font-weight:600;font-size:.88rem">${cita.hora} – ${cita.hora_fin}</td>
+      </tr>
+      <tr>
+        <td style="padding:10px 0;color:#6B7280;font-size:.88rem">Referencia</td>
+        <td style="padding:10px 0;font-family:monospace;font-weight:600;color:#1A8C6E;font-size:.9rem">${ref}</td>
+      </tr>
+    </table>
+  </div>
+  <div style="background:white;border:1px solid #E5E8EF;border-top:none;padding:16px 24px;border-radius:0 0 12px 12px">
+    <p style="font-size:.82rem;color:#6B7280;margin:0 0 6px">
+      📍 ${Deno.env.get("CENTRO_DIRECCION") || "Dirección del centro"}
+    </p>
+    <p style="font-size:.82rem;color:#6B7280;margin:0">
+      ¿Necesitas cancelar o cambiar tu cita? Llámanos al
+      <strong>${Deno.env.get("CENTRO_TELEFONO") || "+34 XXX XXX XXX"}</strong>
+      con al menos 24h de antelación.
+    </p>
+  </div>
+</body>
+</html>`;
+
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `${Deno.env.get("CENTRO_NOMBRE") || "Movement Lab Bcn"} <${Deno.env.get("FROM_EMAIL") || "no-reply@movementlabbcn.com"}>`,
+      to: [cita.paciente_email],
+      bcc: [Deno.env.get("CENTRO_EMAIL")!],
+      subject: `✓ Cita confirmada · ${fechaFormateada}`,
+      html,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Resend error:", err);
+  }
+}

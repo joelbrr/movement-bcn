@@ -98,7 +98,7 @@ serve(async () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: `${Deno.env.get("CENTRO_NOMBRE") || "Movement Lab Bcn"} <no-reply@movementlabbcn.com>`,
+          from: `${Deno.env.get("CENTRO_NOMBRE") || "Movement Lab Bcn"} <${Deno.env.get("FROM_EMAIL") || "no-reply@movementlabbcn.com"}>`,
           to: [cita.paciente_email],
           subject: `Recordatorio: tu cita mañana ${fechaFormateada} a las ${cita.hora}`,
           html,
