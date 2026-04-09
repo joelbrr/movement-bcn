@@ -537,6 +537,156 @@
       font-size: .8rem;
       font-weight: 600;
     }
+
+    /* ── WEEKLY CALENDAR ── */
+    .cal-week-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .cal-week-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cal-week-nav button {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--off);
+      border: 1.5px solid var(--border);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+
+    .cal-week-nav button:hover {
+      background: var(--teal-l);
+      border-color: var(--teal);
+    }
+
+    .cal-week-label {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--navy);
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .cal-week-grid {
+      display: grid;
+      grid-template-columns: 52px repeat(5, 1fr);
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .cal-head-cell {
+      background: var(--navy);
+      color: rgba(255,255,255,.9);
+      text-align: center;
+      padding: 10px 4px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+
+    .cal-head-cell.today {
+      background: var(--teal);
+    }
+
+    .cal-head-cell:last-child {
+      border-right: none;
+    }
+
+    .cal-time-col {
+      background: var(--off);
+      border-right: 1.5px solid var(--border);
+    }
+
+    .cal-time-slot {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 4px;
+      font-size: .65rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cal-day-col {
+      position: relative;
+      border-right: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .cal-day-col:last-child {
+      border-right: none;
+    }
+
+    .cal-day-col.today-col {
+      background: #f0fdf9;
+    }
+
+    .cal-hour-line {
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cal-half-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-bottom: 1px dashed rgba(0,0,0,.06);
+    }
+
+    .cal-event {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: .68rem;
+      font-weight: 600;
+      overflow: hidden;
+      cursor: default;
+      transition: opacity .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.12);
+      z-index: 2;
+    }
+
+    .cal-event:hover {
+      opacity: 0.85;
+      z-index: 3;
+    }
+
+    .cal-event-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: white;
+    }
+
+    .cal-event-detail {
+      opacity: 0.85;
+      font-size: .62rem;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 
@@ -641,8 +791,24 @@
         <!-- PAGES -->
         <div id="page-dashboard" class="page active">
           <div class="stats-row" id="statsRow"></div>
+
+          <!-- Calendario Semanal -->
           <div class="section-card">
-            <h3>Próximas Citas</h3>
+            <h3>Calendario Semanal</h3>
+            <div class="cal-week-header">
+              <div class="cal-week-nav">
+                <button onclick="changeWeek(-1)" title="Semana anterior">←</button>
+                <span class="cal-week-label" id="weekLabel"></span>
+                <button onclick="changeWeek(1)" title="Semana siguiente">→</button>
+                <button onclick="goToThisWeek()" style="font-size:.7rem; width:auto; padding: 0 10px; background:var(--teal-l); border-color:var(--teal); color:var(--teal); font-weight:700">Hoy</button>
+              </div>
+              <select id="calProfFilter" onchange="renderWeekCalendar()" style="width:220px; border-color:var(--border); font-weight:600; padding:8px 12px; border-radius:8px;"></select>
+            </div>
+            <div id="weekCalGrid"></div>
+          </div>
+
+          <div class="section-card">
+            <h3>Próximas Citas (Hoy y Mañana)</h3>
             <div id="upcomingList" style="margin-top: 10px;"></div>
           </div>
         </div>
@@ -793,7 +959,7 @@
 
     function fillSelects() {
       const opts = cachedProfs.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
-      ['agendaProfFilter', 'filterProf', 'horarioProfSel', 'bloqProf'].forEach(id => {
+      ['agendaProfFilter', 'filterProf', 'horarioProfSel', 'bloqProf', 'calProfFilter'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
         el.innerHTML = (id.includes('Filter') || id === 'filterProf' ? '<option value="">Todos los profesionales</option>' : '<option value="">Selecciona profesional...</option>') + opts;
       });
@@ -812,6 +978,119 @@
       if (pageId === 'bloqueos') renderBloqueos();
     }
 
+    // ── WEEK CALENDAR STATE ──
+    let calWeekOffset = 0; // 0 = current week
+
+    function getWeekStart(offset = 0) {
+      const now = new Date();
+      const day = now.getDay(); // 0=Sun
+      const diff = (day === 0 ? -6 : 1 - day); // Monday
+      const mon = new Date(now);
+      mon.setDate(now.getDate() + diff + offset * 7);
+      mon.setHours(0, 0, 0, 0);
+      return mon;
+    }
+
+    function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+    function changeWeek(dir) { calWeekOffset += dir; renderWeekCalendar(); }
+    function goToThisWeek() { calWeekOffset = 0; renderWeekCalendar(); }
+
+    async function renderWeekCalendar() {
+      const CAL_START_H = 8;
+      const CAL_END_H = 20;
+      const HOUR_PX = 52; // px per hour
+
+      const weekStart = getWeekStart(calWeekOffset);
+      const weekDays = Array.from({ length: 5 }, (_, i) => {
+        const d = new Date(weekStart);
+        d.setDate(weekStart.getDate() + i);
+        return d;
+      });
+
+      // Header label
+      const opts = { day: 'numeric', month: 'short' };
+      document.getElementById('weekLabel').textContent =
+        `${weekDays[0].toLocaleDateString('es-ES', opts)} – ${weekDays[4].toLocaleDateString('es-ES', opts)}`;
+
+      // Fetch appointments for this week
+      const fromDate = toDateStr(weekDays[0]);
+      const toDate = toDateStr(weekDays[4]);
+      const profFilter = document.getElementById('calProfFilter')?.value || '';
+      let q = sb.from('citas')
+        .select('*, profesionales(nombre,color), servicios(nombre)')
+        .gte('fecha', fromDate)
+        .lte('fecha', toDate)
+        .neq('estado', 'cancelada')
+        .order('hora');
+      if (profFilter) q = q.eq('prof_id', profFilter);
+      const { data: citas } = await q;
+      const citasData = citas || [];
+
+      const todayStr = toDateStr(new Date());
+      const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+      const totalHours = CAL_END_H - CAL_START_H;
+
+      // Build grid HTML
+      let html = '<div class="cal-week-grid">';
+
+      // Header row
+      html += '<div class="cal-head-cell" style="background:var(--navy)"></div>';
+      weekDays.forEach((d, i) => {
+        const ds = toDateStr(d);
+        const isToday = ds === todayStr;
+        html += `<div class="cal-head-cell${isToday ? ' today' : ''}">
+          <div>${DAY_NAMES[i]}</div>
+          <div style="font-size:.95rem; font-family:var(--serif); margin-top:2px">${d.getDate()}</div>
+        </div>`;
+      });
+
+      // Time + day columns
+      html += '<div class="cal-time-col">';
+      for (let h = CAL_START_H; h < CAL_END_H; h++) {
+        html += `<div class="cal-time-slot">${String(h).padStart(2,'0')}:00</div>`;
+      }
+      html += '</div>';
+
+      weekDays.forEach(d => {
+        const ds = toDateStr(d);
+        const isToday = ds === todayStr;
+        const dayHeight = totalHours * HOUR_PX;
+        const dayCitas = citasData.filter(c => c.fecha === ds);
+
+        html += `<div class="cal-day-col${isToday ? ' today-col' : ''}" style="height:${dayHeight}px">`;
+
+        // Hour lines
+        for (let h = 0; h < totalHours; h++) {
+          const topPx = h * HOUR_PX;
+          html += `<div class="cal-hour-line" style="position:absolute;top:${topPx}px;left:0;right:0"></div>`;
+          html += `<div class="cal-half-line" style="top:${topPx + HOUR_PX/2}px"></div>`;
+        }
+
+        // Events
+        dayCitas.forEach(c => {
+          const [hh, mm] = c.hora.split(':').map(Number);
+          const [ehh, emm] = c.hora_fin.split(':').map(Number);
+          const startMin = (hh * 60 + mm) - CAL_START_H * 60;
+          const endMin   = (ehh * 60 + emm) - CAL_START_H * 60;
+          const topPx    = Math.max(0, startMin / 60 * HOUR_PX);
+          const heightPx = Math.max(22, (endMin - startMin) / 60 * HOUR_PX - 2);
+          const bg = c.profesionales?.color || '#1A8C6E';
+
+          html += `<div class="cal-event" style="top:${topPx}px;height:${heightPx}px;background:${bg};" title="${c.paciente_nombre} · ${c.servicios?.nombre || ''} · ${c.hora}–${c.hora_fin}">
+            <div class="cal-event-name">${c.paciente_nombre}</div>
+            ${heightPx > 36 ? `<div class="cal-event-detail">${c.servicios?.nombre || ''}</div>` : ''}
+            ${heightPx > 52 ? `<div class="cal-event-detail">${c.hora.slice(0,5)}–${c.hora_fin.slice(0,5)}</div>` : ''}
+          </div>`;
+        });
+
+        html += '</div>'; // cal-day-col
+      });
+
+      html += '</div>'; // cal-week-grid
+      document.getElementById('weekCalGrid').innerHTML = html;
+    }
+
     async function renderDashboard() {
       const today = new Date().toISOString().split('T')[0];
       const { data: citas } = await sb.from('citas').select('*, profesionales(nombre,color), servicios(nombre)').order('fecha').order('hora');
@@ -826,6 +1105,8 @@
       <div class="stat-card"><div class="stat-num">${done.length}</div><div class="stat-label">Citas Finalizadas</div></div>
       <div class="stat-card"><div class="stat-num">${all.length}</div><div class="stat-label">Total Citas Registradas</div></div>
     `;
+
+      await renderWeekCalendar();
 
       const tmr = new Date(); tmr.setDate(tmr.getDate() + 1); const tmrStr = tmr.toISOString().split('T')[0];
       const upcoming = all.filter(c => (c.fecha === today || c.fecha === tmrStr) && c.estado !== 'cancelada').slice(0, 10);
@@ -915,9 +1196,33 @@
       const p = { prof_id: document.getElementById('bloqProf').value, fecha: document.getElementById('bloqFecha').value };
       if (!p.prof_id || !p.fecha) { alert('Profesional y fecha son obligatorios.'); return; }
       const t = document.getElementById('bloqTipo').value;
-      if (t === 'bloqueo') await sb.from('bloqueos').insert({ ...p, hora_ini: document.getElementById('bloqIni').value, hora_fin: document.getElementById('bloqFin').value, motivo: document.getElementById('bloqMotivo').value });
-      else await sb.from('excepciones').insert({ ...p, tipo: t, hora_ini: document.getElementById('bloqIni').value, hora_fin: document.getElementById('bloqFin').value });
-      alert('Bloqueo/Excepción registrada.'); renderBloqueos();
+      
+      let res;
+      if (t === 'bloqueo') {
+        res = await sb.from('bloqueos').insert({ 
+          ...p, 
+          hora_ini: document.getElementById('bloqIni').value || null, 
+          hora_fin: document.getElementById('bloqFin').value || null, 
+          motivo: document.getElementById('bloqMotivo').value 
+        });
+      } else {
+        // En excepciones, si es 'dia_libre', las horas deben ser null
+        const isFullDay = t === 'dia_libre';
+        res = await sb.from('excepciones').insert({ 
+          ...p, 
+          tipo: t, 
+          hora_ini: isFullDay ? null : document.getElementById('bloqIni').value, 
+          hora_fin: isFullDay ? null : document.getElementById('bloqFin').value 
+        });
+      }
+
+      if (res.error) {
+        console.error('Error guardando bloqueo/excepción:', res.error);
+        alert('No se pudo guardar: ' + res.error.message);
+      } else {
+        alert('Registrado con éxito.');
+        renderBloqueos();
+      }
     }
 
     async function renderBloqueos() {
