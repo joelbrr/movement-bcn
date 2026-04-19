@@ -823,7 +823,7 @@
 
       document.getElementById('upcomingCitas').innerHTML = upcoming.length
         ? upcoming.map(c => citaCardHTML(c, true)).join('')
-        : '<div class="empty-state"><div class="empty-icon">📅</div><strong>Sin citas próximas</strong>Reserva tu primera sesión.<br><a href="reservar.html" style="color:var(--teal);font-weight:600;display:inline-block;margin-top:8px">Reservar cita →</a></div>';
+        : '<div class="empty-state"><div class="empty-icon">📅</div><strong>Sin citas próximas</strong>Reserva tu primera sesión.<br><a href="reservar-v3.html" style="color:var(--teal);font-weight:600;display:inline-block;margin-top:8px">Reservar cita →</a></div>';
 
       document.getElementById('pastCitas').innerHTML = past.length
         ? past.map(c => citaCardHTML(c, false)).join('')
