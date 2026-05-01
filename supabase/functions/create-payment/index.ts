@@ -42,6 +42,7 @@ serve(async (req) => {
       nota,
       usuarioId,
       metodoPago, // 'stripe' (default) o 'local'
+      claseId,
     } = body;
 
     // 1. Validar campos obligatorios
@@ -104,6 +105,7 @@ serve(async (req) => {
           paciente_email: pacienteEmail,
           paciente_tel: pacienteTel || null,
           nota: (nota ? nota + "\n" : "") + "[PAGO EN LOCAL]",
+          clase_id: claseId || null,
         })
         .select()
         .single();
@@ -200,6 +202,7 @@ serve(async (req) => {
         paciente_tel: pacienteTel || null,
         nota: nota || null,
         expires_at: expiresAt,
+        clase_id: claseId || null,
       })
       .select()
       .single();

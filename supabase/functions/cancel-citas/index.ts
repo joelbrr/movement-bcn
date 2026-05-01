@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -12,15 +12,17 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
-    );
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("Missing Authorization header");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    });
 
     // Verify authentication
     const {
@@ -39,10 +41,10 @@ serve(async (req) => {
 
     // Usar SERVICE_ROLE para poder consultar las citas completas (por si RLS lo bloquea aunque el admin pueda actualizar)
     // El admin tiene permisos para actualizar, pero usar service_role asegura que el envío de email no falle por permisos de lectura.
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
-    );
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!serviceKey) throw new Error("Missing service key");
+    
+    const serviceClient = createClient(supabaseUrl, serviceKey);
 
     // Fetch citas details
     const { data: citas, error: fetchErr } = await serviceClient

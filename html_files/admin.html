@@ -852,6 +852,15 @@
         </div>
 
         <div class="nav-section">Configuración</div>
+        <div class="nav-item" id="nav-clases" onclick="showPage('clases')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Clases Grupales
+        </div>
         <div class="nav-item" id="nav-horarios" onclick="showPage('horarios')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
@@ -971,6 +980,40 @@
           </div>
         </div>
 
+        <div id="page-clases" class="page">
+          <div class="section-card">
+            <h3>Crear Nueva Clase Grupal</h3>
+            <div class="form-grid">
+              <div class="form-group"><label>Servicio</label><select id="claseServicio"></select></div>
+              <div class="form-group"><label>Profesional</label><select id="claseProf"></select></div>
+              <div class="form-group"><label>Capacidad Máxima</label><input type="number" id="claseCap" min="2" value="5"></div>
+            </div>
+            <div class="form-grid" style="margin-top: 16px;">
+              <div class="form-group"><label>Fecha</label><input type="date" id="claseFecha"></div>
+              <div class="form-group"><label>Hora Inicio</label><input type="time" id="claseIni"></div>
+              <div class="form-group"><label>Hora Fin</label><input type="time" id="claseFin"></div>
+            </div>
+            <button class="btn btn-primary" onclick="saveClase()" style="margin-top: 20px;">Programar Clase</button>
+          </div>
+          
+          <div class="section-card">
+            <h3>Gestión de Clases Programadas</h3>
+            <div style="overflow-x:auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Servicio / Prof.</th>
+                    <th>Plazas Ocupadas</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="clasesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div id="page-bloqueos" class="page">
           <div class="section-card">
             <h3>Añadir Bloqueo o Excepción</h3>
@@ -1026,6 +1069,7 @@
 
     let currentUser = null;
     let cachedProfs = [];
+    let cachedServs = [];
     let agendaDate = new Date().toISOString().split('T')[0];
 
     function fmtDate(ds) { const d = new Date(ds + 'T12:00:00'); return `${DIAS_ES[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]} ${d.getFullYear()}`; }
@@ -1052,18 +1096,27 @@
     }
 
     async function initApp() {
-      const { data: profs } = await sb.from('profesionales').select('*').eq('activo', true).order('nombre');
+      const [{ data: profs }, { data: servs }] = await Promise.all([
+        sb.from('profesionales').select('*').eq('activo', true).order('nombre'),
+        sb.from('servicios').select('*').order('nombre')
+      ]);
       cachedProfs = profs || [];
+      cachedServs = servs || [];
       fillSelects();
       showPage('dashboard');
     }
 
     function fillSelects() {
       const opts = cachedProfs.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
-      ['agendaProfFilter', 'filterProf', 'horarioProfSel', 'bloqProf', 'calProfFilter'].forEach(id => {
+      ['agendaProfFilter', 'filterProf', 'horarioProfSel', 'bloqProf', 'calProfFilter', 'claseProf'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
         el.innerHTML = (id.includes('Filter') || id === 'filterProf' ? '<option value="">Todos los profesionales</option>' : '<option value="">Selecciona profesional...</option>') + opts;
       });
+
+      const sOpts = cachedServs.map(s => `<option value="${s.id}">${s.nombre} (${s.duracion_min}min)</option>`).join('');
+      if (document.getElementById('claseServicio')) {
+        document.getElementById('claseServicio').innerHTML = '<option value="">Selecciona servicio...</option>' + sOpts;
+      }
     }
 
     function showPage(pageId) {
@@ -1077,6 +1130,7 @@
       if (pageId === 'allcitas') renderAllCitas();
       if (pageId === 'horarios') renderHorarioEditor();
       if (pageId === 'bloqueos') renderBloqueos();
+      if (pageId === 'clases') renderClases();
     }
 
     // ── WEEK CALENDAR STATE ──
@@ -1336,7 +1390,12 @@
           const { data, error } = await sb.functions.invoke('cancel-citas', { body: { citaIds } });
           if (error) {
             console.error('Error cancelando citas:', error);
-            alert('Hubo un error al cancelar las citas y enviar emails: ' + error.message);
+            let extraMsg = '';
+            try {
+              const errBody = await error.context.json();
+              extraMsg = errBody.error || '';
+            } catch (e) { }
+            alert('Hubo un error al cancelar las citas: ' + (extraMsg || error.message));
             return;
           }
           alert(`Se han cancelado ${overlaps.length} cita(s) y notificado a los pacientes con éxito.`);
@@ -1387,6 +1446,62 @@
     }
 
     async function delBloq(id, t) { if (confirm('¿Eliminar este registro permanentemente?')) { await sb.from(t === 'Bloqueo' ? 'bloqueos' : 'excepciones').delete().eq('id', id); renderBloqueos(); } }
+
+    async function renderClases() {
+      const { data: clases } = await sb.from('clases').select('*, profesionales(nombre), servicios(nombre)').order('fecha').order('hora');
+      const { data: citasGrupos } = await sb.from('citas').select('clase_id, estado').not('clase_id', 'is', null).neq('estado', 'cancelada');
+      
+      const counts = {};
+      (citasGrupos || []).forEach(c => {
+        counts[c.clase_id] = (counts[c.clase_id] || 0) + 1;
+      });
+
+      const html = (clases || []).map(c => {
+        const ocup = counts[c.id] || 0;
+        const color = ocup >= c.capacidad ? 'var(--danger)' : 'var(--teal)';
+        return `
+        <tr>
+          <td>${c.fecha.split('-').reverse().join('/')}<br><span style="font-size:.8rem;color:var(--muted)">${c.hora.slice(0,5)} - ${c.hora_fin.slice(0,5)}</span></td>
+          <td style="font-weight:600">${c.servicios?.nombre || c.servicio_id}<br><span style="font-size:.8rem;color:var(--muted);font-weight:normal">${c.profesionales?.nombre}</span></td>
+          <td><span class="badge" style="background:${color}; color:white">${ocup} / ${c.capacidad}</span></td>
+          <td><span class="del-btn" onclick="delClase('${c.id}', ${ocup})">Eliminar</span></td>
+        </tr>
+        `;
+      }).join('');
+      document.getElementById('clasesBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--muted)">No hay clases grupales programadas.</td></tr>';
+    }
+
+    async function saveClase() {
+      const serv = document.getElementById('claseServicio').value;
+      const prof = document.getElementById('claseProf').value;
+      const cap = document.getElementById('claseCap').value;
+      const fecha = document.getElementById('claseFecha').value;
+      const ini = document.getElementById('claseIni').value;
+      const fin = document.getElementById('claseFin').value;
+
+      if (!serv || !prof || !cap || !fecha || !ini || !fin) {
+        alert('Por favor, rellena todos los campos.');
+        return;
+      }
+
+      if (await showConfirmModal('Confirmar Clase', `¿Deseas programar esta clase para el ${fecha.split('-').reverse().join('/')} a las ${ini}?`)) {
+        await sb.from('clases').insert({
+          servicio_id: serv, prof_id: prof, fecha, hora: ini, hora_fin: fin, capacidad: parseInt(cap)
+        });
+        renderClases();
+      }
+    }
+
+    async function delClase(id, ocup) {
+      if (ocup > 0) {
+        alert('No puedes eliminar una clase que ya tiene alumnos apuntados. Contacta primero con los alumnos o cancela sus citas.');
+        return;
+      }
+      if (confirm('¿Eliminar esta clase?')) {
+        await sb.from('clases').delete().eq('id', id);
+        renderClases();
+      }
+    }
 
     async function exportCSV() {
       const { data } = await sb.from('citas').select('*, profesionales(nombre), servicios(nombre)').order('fecha');
