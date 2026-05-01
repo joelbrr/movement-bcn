@@ -716,6 +716,76 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    /* CUSTOM MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(11, 34, 64, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.show .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: var(--danger-l);
+      color: var(--danger);
+    }
+
+    .modal-title {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .modal-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
   </style>
 </head>
 
@@ -1234,10 +1304,10 @@
       if (!p.prof_id || !p.fecha) { alert('Profesional y fecha son obligatorios.'); return; }
       const t = document.getElementById('bloqTipo').value;
       const isFullDay = t === 'dia_libre';
-      
+
       const elIni = document.getElementById('bloqIni').value;
       const elFin = document.getElementById('bloqFin').value;
-      
+
       if (!isFullDay && (!elIni || !elFin)) {
         alert('Debes indicar la hora de inicio y fin.');
         return;
@@ -1260,8 +1330,8 @@
 
       if (overlaps.length > 0) {
         const nombres = overlaps.map(c => c.paciente_nombre).join(', ');
-        const confirmMsg = `ATENCIÓN: Este evento solapa con ${overlaps.length} cita(s) existente(s) (${nombres}).\n\n¿Deseas CANCELAR automáticamente estas citas y NOTIFICAR por email a los clientes? (Si cancelas este cuadro, no se guardará el bloqueo).`;
-        if (confirm(confirmMsg)) {
+        const confirmMsg = `Este evento solapa con <strong>${overlaps.length} cita(s) existente(s)</strong> (${nombres}).<br><br>¿Deseas CANCELAR automáticamente estas citas y NOTIFICAR por email a los clientes afectados?<br><br><span style="font-size:0.85rem; opacity:0.8">Si cancelas, no se guardará el bloqueo.</span>`;
+        if (await showConfirmModal('Solapamiento Detectado', confirmMsg, 'Cancelar Citas')) {
           const citaIds = overlaps.map(c => c.id);
           const { data, error } = await sb.functions.invoke('cancel-citas', { body: { citaIds } });
           if (error) {
@@ -1331,7 +1401,46 @@
       const { data } = await sb.auth.getSession();
       if (data.session) { currentUser = data.session.user; enterApp(); }
     });
+
+    function showConfirmModal(title, htmlDesc, confirmText = 'Aceptar') {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('customModal');
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalDesc').innerHTML = htmlDesc;
+        document.getElementById('modalBtnConfirm').textContent = confirmText;
+        const cleanup = () => {
+          overlay.classList.remove('show');
+          document.getElementById('modalBtnCancel').removeEventListener('click', onCancel);
+          document.getElementById('modalBtnConfirm').removeEventListener('click', onConfirm);
+        };
+        const onCancel = () => { cleanup(); resolve(false); };
+        const onConfirm = () => { cleanup(); resolve(true); };
+        document.getElementById('modalBtnCancel').addEventListener('click', onCancel);
+        document.getElementById('modalBtnConfirm').addEventListener('click', onConfirm);
+        overlay.classList.add('show');
+      });
+    }
   </script>
+
+  <!-- Custom Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+          </path>
+        </svg>
+      </div>
+      <div class="modal-title" id="modalTitle">Atención</div>
+      <div class="modal-desc" id="modalDesc">...</div>
+      <div class="modal-actions">
+        <button class="btn" style="background:var(--off); color:var(--navy); flex:1"
+          id="modalBtnCancel">Cancelar</button>
+        <button class="btn btn-danger" style="flex:1" id="modalBtnConfirm">Sí, proceder</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

@@ -41,7 +41,7 @@ serve(async (req) => {
     // El admin tiene permisos para actualizar, pero usar service_role asegura que el envío de email no falle por permisos de lectura.
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
     );
 
     // Fetch citas details
