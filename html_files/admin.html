@@ -476,6 +476,35 @@
       margin-bottom: 20px;
     }
 
+    .form-group label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .95rem;
+      background: var(--off);
+      transition: all .2s;
+      color: var(--navy);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--teal);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(26, 140, 110, 0.15);
+    }
+
     .btn {
       padding: 10px 20px;
       border-radius: 10px;
@@ -591,14 +620,14 @@
 
     .cal-head-cell {
       background: var(--navy);
-      color: rgba(255,255,255,.9);
+      color: rgba(255, 255, 255, .9);
       text-align: center;
       padding: 10px 4px;
       font-size: .72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-right: 1px solid rgba(255,255,255,.08);
+      border-right: 1px solid rgba(255, 255, 255, .08);
     }
 
     .cal-head-cell.today {
@@ -649,7 +678,7 @@
       position: absolute;
       left: 0;
       right: 0;
-      border-bottom: 1px dashed rgba(0,0,0,.06);
+      border-bottom: 1px dashed rgba(0, 0, 0, .06);
     }
 
     .cal-event {
@@ -663,7 +692,7 @@
       overflow: hidden;
       cursor: default;
       transition: opacity .2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,.12);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
       z-index: 2;
     }
 
@@ -800,9 +829,11 @@
                 <button onclick="changeWeek(-1)" title="Semana anterior">←</button>
                 <span class="cal-week-label" id="weekLabel"></span>
                 <button onclick="changeWeek(1)" title="Semana siguiente">→</button>
-                <button onclick="goToThisWeek()" style="font-size:.7rem; width:auto; padding: 0 10px; background:var(--teal-l); border-color:var(--teal); color:var(--teal); font-weight:700">Hoy</button>
+                <button onclick="goToThisWeek()"
+                  style="font-size:.7rem; width:auto; padding: 0 10px; background:var(--teal-l); border-color:var(--teal); color:var(--teal); font-weight:700">Hoy</button>
               </div>
-              <select id="calProfFilter" onchange="renderWeekCalendar()" style="width:220px; border-color:var(--border); font-weight:600; padding:8px 12px; border-radius:8px;"></select>
+              <select id="calProfFilter" onchange="renderWeekCalendar()"
+                style="width:220px; border-color:var(--border); font-weight:600; padding:8px 12px; border-radius:8px;"></select>
             </div>
             <div id="weekCalGrid"></div>
           </div>
@@ -1048,7 +1079,7 @@
       // Time + day columns
       html += '<div class="cal-time-col">';
       for (let h = CAL_START_H; h < CAL_END_H; h++) {
-        html += `<div class="cal-time-slot">${String(h).padStart(2,'0')}:00</div>`;
+        html += `<div class="cal-time-slot">${String(h).padStart(2, '0')}:00</div>`;
       }
       html += '</div>';
 
@@ -1064,7 +1095,7 @@
         for (let h = 0; h < totalHours; h++) {
           const topPx = h * HOUR_PX;
           html += `<div class="cal-hour-line" style="position:absolute;top:${topPx}px;left:0;right:0"></div>`;
-          html += `<div class="cal-half-line" style="top:${topPx + HOUR_PX/2}px"></div>`;
+          html += `<div class="cal-half-line" style="top:${topPx + HOUR_PX / 2}px"></div>`;
         }
 
         // Events
@@ -1072,15 +1103,15 @@
           const [hh, mm] = c.hora.split(':').map(Number);
           const [ehh, emm] = c.hora_fin.split(':').map(Number);
           const startMin = (hh * 60 + mm) - CAL_START_H * 60;
-          const endMin   = (ehh * 60 + emm) - CAL_START_H * 60;
-          const topPx    = Math.max(0, startMin / 60 * HOUR_PX);
+          const endMin = (ehh * 60 + emm) - CAL_START_H * 60;
+          const topPx = Math.max(0, startMin / 60 * HOUR_PX);
           const heightPx = Math.max(22, (endMin - startMin) / 60 * HOUR_PX - 2);
           const bg = c.profesionales?.color || '#1A8C6E';
 
           html += `<div class="cal-event" style="top:${topPx}px;height:${heightPx}px;background:${bg};" title="${c.paciente_nombre} · ${c.servicios?.nombre || ''} · ${c.hora}–${c.hora_fin}">
             <div class="cal-event-name">${c.paciente_nombre}</div>
             ${heightPx > 36 ? `<div class="cal-event-detail">${c.servicios?.nombre || ''}</div>` : ''}
-            ${heightPx > 52 ? `<div class="cal-event-detail">${c.hora.slice(0,5)}–${c.hora_fin.slice(0,5)}</div>` : ''}
+            ${heightPx > 52 ? `<div class="cal-event-detail">${c.hora.slice(0, 5)}–${c.hora_fin.slice(0, 5)}</div>` : ''}
           </div>`;
         });
 
@@ -1174,8 +1205,14 @@
             ${dk.charAt(0).toUpperCase() + dk.slice(1)}
           </label>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div><span style="font-size:.7rem; font-weight:600; color:var(--muted)">INICIO</span><input type="time" id="ini-${dk}" value="${h ? h.ini : '09:00'}" style="padding: 10px;"></div>
-            <div><span style="font-size:.7rem; font-weight:600; color:var(--muted)">FIN</span><input type="time" id="fin-${dk}" value="${h ? h.fin : '18:00'}" style="padding: 10px;"></div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label style="color:var(--muted); font-size:.7rem; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px">Inicio</label>
+              <input type="time" id="ini-${dk}" value="${h ? h.ini : '09:00'}">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label style="color:var(--muted); font-size:.7rem; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px">Fin</label>
+              <input type="time" id="fin-${dk}" value="${h ? h.fin : '18:00'}">
+            </div>
           </div>
         </div>
       `;
@@ -1196,23 +1233,62 @@
       const p = { prof_id: document.getElementById('bloqProf').value, fecha: document.getElementById('bloqFecha').value };
       if (!p.prof_id || !p.fecha) { alert('Profesional y fecha son obligatorios.'); return; }
       const t = document.getElementById('bloqTipo').value;
+      const isFullDay = t === 'dia_libre';
       
+      const elIni = document.getElementById('bloqIni').value;
+      const elFin = document.getElementById('bloqFin').value;
+      
+      if (!isFullDay && (!elIni || !elFin)) {
+        alert('Debes indicar la hora de inicio y fin.');
+        return;
+      }
+
+      // Check for overlapping appointments
+      const bIni = isFullDay ? '00:00' : elIni;
+      const bFin = isFullDay ? '23:59' : elFin;
+
+      const { data: solapadas } = await sb.from('citas')
+        .select('id, paciente_nombre, hora, hora_fin')
+        .eq('fecha', p.fecha)
+        .eq('prof_id', p.prof_id)
+        .in('estado', ['confirmada', 'pendiente_pago']);
+
+      const overlaps = (solapadas || []).filter(c => {
+        const toMin = (timeStr) => { const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
+        return toMin(c.hora) < toMin(bFin) && toMin(c.hora_fin) > toMin(bIni);
+      });
+
+      if (overlaps.length > 0) {
+        const nombres = overlaps.map(c => c.paciente_nombre).join(', ');
+        const confirmMsg = `ATENCIÓN: Este evento solapa con ${overlaps.length} cita(s) existente(s) (${nombres}).\n\n¿Deseas CANCELAR automáticamente estas citas y NOTIFICAR por email a los clientes? (Si cancelas este cuadro, no se guardará el bloqueo).`;
+        if (confirm(confirmMsg)) {
+          const citaIds = overlaps.map(c => c.id);
+          const { data, error } = await sb.functions.invoke('cancel-citas', { body: { citaIds } });
+          if (error) {
+            console.error('Error cancelando citas:', error);
+            alert('Hubo un error al cancelar las citas y enviar emails: ' + error.message);
+            return;
+          }
+          alert(`Se han cancelado ${overlaps.length} cita(s) y notificado a los pacientes con éxito.`);
+        } else {
+          return; // Abort operation
+        }
+      }
+
       let res;
       if (t === 'bloqueo') {
-        res = await sb.from('bloqueos').insert({ 
-          ...p, 
-          hora_ini: document.getElementById('bloqIni').value || null, 
-          hora_fin: document.getElementById('bloqFin').value || null, 
-          motivo: document.getElementById('bloqMotivo').value 
+        res = await sb.from('bloqueos').insert({
+          ...p,
+          hora_ini: elIni || null,
+          hora_fin: elFin || null,
+          motivo: document.getElementById('bloqMotivo').value
         });
       } else {
-        // En excepciones, si es 'dia_libre', las horas deben ser null
-        const isFullDay = t === 'dia_libre';
-        res = await sb.from('excepciones').insert({ 
-          ...p, 
-          tipo: t, 
-          hora_ini: isFullDay ? null : document.getElementById('bloqIni').value, 
-          hora_fin: isFullDay ? null : document.getElementById('bloqFin').value 
+        res = await sb.from('excepciones').insert({
+          ...p,
+          tipo: t,
+          hora_ini: isFullDay ? null : elIni,
+          hora_fin: isFullDay ? null : elFin
         });
       }
 
