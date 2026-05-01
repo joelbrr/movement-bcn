@@ -1618,7 +1618,6 @@
       }
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       document.getElementById('calMonthLabel').textContent = `${monthNames[S.calMonth - 1]} ${S.calYear}`;
-      const now = new Date();
       document.getElementById('calPrev').disabled = S.calYear === now.getFullYear() && S.calMonth === now.getMonth() + 1;
       const firstDay = new Date(S.calYear, S.calMonth - 1, 1);
       const daysInMonth = new Date(S.calYear, S.calMonth, 0).getDate();
