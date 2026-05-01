@@ -1629,7 +1629,6 @@
         S.claseId = null;
       }
       await renderServiceGrid();
-      goStep(2);
     }
 
     // ── STEP 2 ──
@@ -1666,7 +1665,6 @@
         S.claseId = null;
       }
       renderProfGrid(); 
-      goStep(3);
     }
     function selectProf(id) { 
       if (S.profId !== id) {
@@ -1677,7 +1675,6 @@
       }
       document.getElementById('autoOpt').classList.remove('selected'); 
       renderProfGrid(); 
-      goStep(3);
     }
 
     // ── STEP 3 ──
