@@ -1623,10 +1623,10 @@
         <div class="service-opt-meta">${s.duracion_min || s.dur} min <span class="price-badge">${Number(s.precio).toFixed(2)} €</span></div>
       </div>
     </div>`).join('') + `
-    <div class="service-opt ${S.servicioId === 'grupal' ? 'selected' : ''}" onclick="selectServicio('grupal')" style="background: var(--off); border-color: var(--teal)">
+    <div class="service-opt ${S.servicioId === 'grupal' ? 'selected' : ''}" onclick="selectServicio('grupal')">
       <div class="service-opt-icon">👥</div>
       <div>
-        <div class="service-opt-name" style="color:var(--teal)">Sesiones Grupales</div>
+        <div class="service-opt-name">Sesiones Grupales</div>
         <div class="service-opt-meta">Ver próximas clases</div>
       </div>
     </div>`;
