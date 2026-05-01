@@ -519,6 +519,56 @@
       opacity: .2;
       pointer-events: none;
     }
+    
+    .cal-day.has-group-class {
+      background: var(--teal-l);
+      color: var(--teal);
+      border-color: var(--teal);
+      font-weight: 700;
+      position: relative;
+    }
+    .cal-day.has-group-class::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+    .cal-day.has-group-class.selected {
+      background: var(--teal);
+      color: white;
+      border-color: var(--teal);
+    }
+    .cal-day.has-group-class.selected::after {
+      background: white;
+    }
+
+    .split-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    @media (min-width: 768px) {
+      .split-layout.is-grupal {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .split-layout.is-grupal > .split-left {
+        flex: 1;
+        min-width: 0;
+      }
+      .split-layout.is-grupal > .split-right {
+        flex: 1;
+        min-width: 0;
+        background: var(--off);
+        border-radius: var(--r-md);
+        padding: 24px;
+      }
+    }
 
     /* ── SLOTS ── */
     .slots-header {
@@ -1133,26 +1183,37 @@
 
     <!-- STEP 3: Fecha -->
     <div class="step-card" id="step-3">
-      <h2 class="step-title">Elige la fecha</h2>
-      <p class="step-sub">Solo se muestran los días con disponibilidad.</p>
+      <h2 class="step-title" id="step3Title">Elige la fecha</h2>
+      <p class="step-sub" id="step3Sub">Solo se muestran los días con disponibilidad.</p>
       <div class="alert alert-error" id="err-3">Por favor selecciona una fecha.</div>
-      <div class="cal-header">
-        <button class="cal-nav-btn" id="calPrev" onclick="changeMonth(-1)">‹</button>
-        <span class="cal-month" id="calMonthLabel"></span>
-        <button class="cal-nav-btn" id="calNext" onclick="changeMonth(1)">›</button>
+      
+      <div class="split-layout" id="step3Split">
+        <div class="split-left">
+          <div class="cal-header">
+            <button class="cal-nav-btn" id="calPrev" onclick="changeMonth(-1)">‹</button>
+            <span class="cal-month" id="calMonthLabel"></span>
+            <button class="cal-nav-btn" id="calNext" onclick="changeMonth(1)">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day-label">L</div>
+            <div class="cal-day-label">M</div>
+            <div class="cal-day-label">X</div>
+            <div class="cal-day-label">J</div>
+            <div class="cal-day-label">V</div>
+            <div class="cal-day-label">S</div>
+            <div class="cal-day-label">D</div>
+          </div>
+          <div class="cal-grid" id="calDays"></div>
+        </div>
+        <div class="split-right" id="groupClassesSide" style="display:none">
+          <h3 style="font-size:1.1rem; margin-bottom:16px; color:var(--navy)">Clases del <span id="groupClassesDate"></span></h3>
+          <div id="groupClassesList">Selecciona un día en el calendario para ver las sesiones grupales disponibles.</div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; display:none" id="groupClassesNextBtn" onclick="goStep(5)">Confirmar plaza →</button>
+        </div>
       </div>
-      <div class="cal-grid">
-        <div class="cal-day-label">L</div>
-        <div class="cal-day-label">M</div>
-        <div class="cal-day-label">X</div>
-        <div class="cal-day-label">J</div>
-        <div class="cal-day-label">V</div>
-        <div class="cal-day-label">S</div>
-        <div class="cal-day-label">D</div>
-      </div>
-      <div class="cal-grid" id="calDays"></div>
-      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button><button
-          class="btn btn-primary" onclick="goStep(4)">Siguiente →</button></div>
+
+      <div class="btn-row" id="step3BtnRow"><button class="btn btn-ghost" onclick="goStep(2)" id="step3BackBtn">← Atrás</button><button
+          class="btn btn-primary" onclick="goStep(4)" id="step3NextBtn">Siguiente →</button></div>
     </div>
 
     <!-- STEP 4: Hora -->
@@ -1496,6 +1557,17 @@
     function goStep(n) {
       if (n > S.step && !validateStep(S.step)) return;
       if (S.servicioId === 'grupal' && n === 2) n = S.step === 1 ? 3 : 1;
+      
+      // Update UI for grupal layout
+      const isGrupal = S.servicioId === 'grupal';
+      if (n === 3) {
+        document.getElementById('step3Title').textContent = isGrupal ? 'Sesiones Grupales' : 'Elige la fecha';
+        document.getElementById('step3Sub').textContent = isGrupal ? 'Selecciona un día en el calendario para apuntarte a una clase.' : 'Solo se muestran los días con disponibilidad.';
+        document.getElementById('step3Split').classList.toggle('is-grupal', isGrupal);
+        document.getElementById('groupClassesSide').style.display = isGrupal ? 'block' : 'none';
+        document.getElementById('step3NextBtn').style.display = isGrupal ? 'none' : 'block';
+      }
+
       document.getElementById(`step-${S.step}`).classList.remove('active');
       S.step = n;
       const el = document.getElementById(`step-${n}`);
@@ -1635,13 +1707,63 @@
         if (isSel) cls += ' selected';
         else if (isPast || (isSun && !isAvail) || !isAvail) cls += ' past';
         else cls += ' available';
+        
+        if (S.servicioId === 'grupal' && isAvail) cls += ' has-group-class';
         if (isToday && !isSel) cls += ' today';
         html += `<div class="${cls}" ${!isPast && isAvail ? `onclick="selectDate('${ds}')"` : ''}>${d}</div>`;
       }
       document.getElementById('calDays').innerHTML = html;
+      
+      if (S.servicioId === 'grupal' && S.fecha) {
+        renderGroupClassesList();
+      }
     }
 
-    function selectDate(ds) { S.fecha = ds; S.hora = null; renderCalendar(); }
+    async function renderGroupClassesList() {
+      const area = document.getElementById('groupClassesList');
+      const dateObj = new Date(S.fecha + 'T12:00:00');
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      document.getElementById('groupClassesDate').textContent = `${dateObj.getDate()} de ${meses[dateObj.getMonth()]}`;
+      
+      const clases = await DB.getClases();
+      const [servs, profs] = await Promise.all([DB.getServicios(), DB.getProfesionales()]);
+      const citasGrupos = await sbClient.from('citas').select('clase_id, estado').not('clase_id', 'is', null).neq('estado', 'cancelada').then(r => r.data || []);
+      const counts = {};
+      citasGrupos.forEach(c => { counts[c.clase_id] = (counts[c.clase_id] || 0) + 1; });
+      
+      const dayClases = clases.filter(c => c.fecha === S.fecha).sort((a,b)=>a.hora.localeCompare(b.hora));
+      let html = '';
+      dayClases.forEach(c => {
+         const ocup = counts[c.id] || 0;
+         const serv = servs.find(s => s.id === c.servicio_id);
+         const prof = profs.find(p => p.id === c.prof_id);
+         const libre = ocup < c.capacidad;
+         const sel = S.claseId === c.id;
+         if (libre || sel) {
+            html += `<div class="slot-card ${sel ? 'selected' : ''}" onclick="selectSideClase('${c.id}', '${c.hora}', '${c.hora_fin}', '${c.servicio_id}', '${c.prof_id}', ${serv?.precio})" style="padding:16px; border:1.5px solid ${sel ? 'var(--teal)' : 'var(--border)'}; border-radius:12px; margin-bottom:12px; cursor:pointer; background:${sel ? 'var(--teal-l)' : '#fff'}; transition:all 0.2s">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+                <div style="font-weight:700; font-size:1.05rem; color:var(--navy)">${c.hora.slice(0,5)} - ${c.hora_fin.slice(0,5)}</div>
+                <div class="badge" style="background:${sel ? 'var(--teal)' : 'var(--navy)'}; color:white">${c.capacidad - ocup} plazas</div>
+              </div>
+              <div style="font-weight:600; color:var(--navy)">${serv?.nombre}</div>
+              <div style="font-size:.85rem;color:var(--muted)">Con ${prof?.nombre} | ${serv?.precio} €</div>
+            </div>`;
+         }
+      });
+      if (!html) html = '<div class="no-slots">No hay sesiones disponibles este día.</div>';
+      area.innerHTML = html;
+      document.getElementById('groupClassesNextBtn').style.display = S.claseId ? 'block' : 'none';
+    }
+
+    function selectSideClase(claseId, hora, horaFin, servId, profId, precio) {
+      S.claseId = claseId; S.hora = hora; S.horaFin = horaFin;
+      S.realServicioId = servId; S.realProfId = profId;
+      S.importeCentimos = Math.round(precio * 100);
+      renderGroupClassesList();
+    }
+
+    function selectDate(ds) { S.fecha = ds; S.hora = null; S.claseId = null; renderCalendar(); }
     function changeMonth(dir) {
       S.calMonth += dir;
       if (S.calMonth > 12) { S.calMonth = 1; S.calYear++; }
