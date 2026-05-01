@@ -179,6 +179,7 @@
       align-items: center;
       flex: 1;
       min-width: 0;
+      cursor: pointer;
     }
 
     .p-step-dot {
@@ -564,8 +565,8 @@
         align-items: flex-start;
       }
       .split-left {
-        flex: 1;
-        max-width: none;
+        width: 100%;
+        max-width: 440px;
         margin: 0;
       }
       .split-right {
@@ -1135,23 +1136,23 @@
   <div class="progress-wrap">
     <div class="progress-inner">
       <div class="progress-steps">
-        <div class="p-step active" data-step="1">
+        <div class="p-step active" data-step="1" onclick="goStep(1)">
           <div class="p-step-dot">1</div><span class="p-step-label">Servicio</span>
         </div>
         <div class="p-connector" id="conn-1-2"></div>
-        <div class="p-step" data-step="2">
+        <div class="p-step" data-step="2" onclick="goStep(2)">
           <div class="p-step-dot">2</div><span class="p-step-label">Profesional</span>
         </div>
         <div class="p-connector" id="conn-2-3"></div>
-        <div class="p-step" data-step="3">
+        <div class="p-step" data-step="3" onclick="goStep(3)">
           <div class="p-step-dot">3</div><span class="p-step-label">Fecha y Hora</span>
         </div>
         <div class="p-connector" id="conn-3-4"></div>
-        <div class="p-step" data-step="4">
+        <div class="p-step" data-step="4" onclick="goStep(4)">
           <div class="p-step-dot">4</div><span class="p-step-label">Datos</span>
         </div>
         <div class="p-connector" id="conn-4-5"></div>
-        <div class="p-step" data-step="5">
+        <div class="p-step" data-step="5" onclick="goStep(5)">
           <div class="p-step-dot">5</div><span class="p-step-label">Pago</span>
         </div>
       </div>
@@ -1215,7 +1216,7 @@
         </div>
       </div>
 
-      <div class="btn-row" id="step3BtnRow" style="display:none"><button class="btn btn-ghost" onclick="goStep(2)" id="step3BackBtn">← Atrás</button></div>
+      <div class="btn-row" id="step3BtnRow"><button class="btn btn-ghost" onclick="goStep(2)" id="step3BackBtn">← Atrás</button></div>
     </div>
 
     <!-- STEP 4: Datos personales -->
@@ -1547,18 +1548,32 @@
 
     // ── Navigation ──
     function goStep(n) {
+      if (n === S.step) return; // Ya estamos en este paso
+      
+      // Solo permitimos avanzar si el paso actual es válido
       if (n > S.step && !validateStep(S.step)) return;
       
+      // Si intentamos saltar pasos hacia adelante, no dejamos
+      if (n > S.step + 1) {
+        // A menos que ya hubiéramos pasado por ahí y los datos sigan siendo válidos
+        // Para simplificar, solo dejamos ir al siguiente o a cualquiera anterior
+        if (n > S.step + 1) return; 
+      }
+
       document.getElementById(`step-${S.step}`).classList.remove('active');
       S.step = n;
       const el = document.getElementById(`step-${n}`);
       if (el) {
         el.classList.add('active');
         updateProgress();
+        if (n === 1) renderServiceGrid();
         if (n === 2) renderProfGrid();
         if (n === 3) renderCalendar();
         if (n === 4) { }
         if (n === 5) initPaymentStep();
+        
+        // Scroll to top of wizard
+        window.scrollTo({ top: document.querySelector('.progress-wrap').offsetTop - 20, behavior: 'smooth' });
       }
     }
 
@@ -1611,8 +1626,15 @@
     }
 
     async function selectServicio(id) {
-      S.servicioId = id; S.profId = 'auto'; S.fecha = null; S.hora = null;
+      if (S.servicioId !== id) {
+        S.servicioId = id; 
+        S.profId = 'auto'; 
+        S.fecha = null; 
+        S.hora = null; 
+        S.claseId = null;
+      }
       await renderServiceGrid();
+      goStep(2);
     }
 
     // ── STEP 2 ──
@@ -1641,8 +1663,27 @@
       document.getElementById('autoOpt').classList.toggle('selected', S.profId === 'auto');
     }
 
-    function selectProfesional(id) { S.profId = id; S.fecha = null; S.hora = null; renderProfGrid(); }
-    function selectProf(id) { S.profId = id; document.getElementById('autoOpt').classList.remove('selected'); renderProfGrid(); }
+    function selectProfesional(id) { 
+      if (S.profId !== id) {
+        S.profId = id; 
+        S.fecha = null; 
+        S.hora = null; 
+        S.claseId = null;
+      }
+      renderProfGrid(); 
+      goStep(3);
+    }
+    function selectProf(id) { 
+      if (S.profId !== id) {
+        S.profId = id; 
+        S.fecha = null; 
+        S.hora = null; 
+        S.claseId = null;
+      }
+      document.getElementById('autoOpt').classList.remove('selected'); 
+      renderProfGrid(); 
+      goStep(3);
+    }
 
     // ── STEP 3 ──
     async function renderCalendar() {
