@@ -1338,34 +1338,45 @@
         ],
         citas: [], bloqueos: [], excepciones: [],
       },
+      
+      _cache: { servicios: null, profesionales: null, citas: null, bloqueos: null, excepciones: null },
+
 
       async getServicios() {
         if (this._isDemo()) return this._demo.servicios;
+        if (this._cache.servicios) return this._cache.servicios;
         const { data } = await sbClient.from('servicios').select('*').eq('activo', true);
-        return data || [];
+        return this._cache.servicios = data || [];
       },
       async getProfesionales() {
         if (this._isDemo()) return this._demo.profesionales;
+        if (this._cache.profesionales) return this._cache.profesionales;
         const { data } = await sbClient.from('profesionales').select('*').eq('activo', true);
-        return data || [];
+        return this._cache.profesionales = data || [];
       },
-      async getCitas() {
+      async getCitas(forceRefresh = false) {
         if (this._isDemo()) {
           try { return JSON.parse(localStorage.getItem('mlb_citas_demo') || '[]'); } catch { return []; }
         }
+        if (!forceRefresh && this._cache.citas) return this._cache.citas;
         const { data } = await sbClient.from('citas').select('*').neq('estado', 'cancelada');
-        return data || [];
+        return this._cache.citas = data || [];
       },
       async getBloqueos() {
         if (this._isDemo()) return this._demo.bloqueos;
+        if (this._cache.bloqueos) return this._cache.bloqueos;
         const { data } = await sbClient.from('bloqueos').select('*');
-        return data || [];
+        return this._cache.bloqueos = data || [];
       },
       async getExcepciones() {
         if (this._isDemo()) return this._demo.excepciones;
+        if (this._cache.excepciones) return this._cache.excepciones;
         const { data } = await sbClient.from('excepciones').select('*');
-        return data || [];
+        return this._cache.excepciones = data || [];
       },
+      invalidateCitas() {
+        this._cache.citas = null;
+      }
     };
 
     // ════════════════════════════════════════════════════
