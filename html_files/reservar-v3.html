@@ -244,13 +244,13 @@
     .wizard-wrap {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 32px 32px 80px;
+      padding: 16px 20px 80px;
     }
 
     .step-card {
       background: var(--white);
       border-radius: var(--r-lg);
-      padding: 32px;
+      padding: 24px 28px;
       box-shadow: var(--shadow);
       display: none;
     }
@@ -551,7 +551,12 @@
     .split-layout {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
+    }
+    .split-left {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
     }
     @media (min-width: 768px) {
       .split-layout.is-grupal {
@@ -560,7 +565,8 @@
       }
       .split-layout.is-grupal > .split-left {
         flex: 1;
-        min-width: 0;
+        max-width: none;
+        margin: 0;
       }
       .split-layout.is-grupal > .split-right {
         flex: 1;
