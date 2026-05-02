@@ -254,11 +254,21 @@
       padding: 24px 28px;
       box-shadow: var(--shadow);
       display: none;
+      min-height: 560px;
     }
 
     .step-card.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
       animation: fadeSlide .3s ease;
+    }
+    
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 24px;
     }
 
     @keyframes fadeSlide {
@@ -1212,11 +1222,13 @@
         <div class="split-right" id="slotsSide" style="display:none">
           <h3 style="font-size:1.1rem; margin-bottom:16px; color:var(--navy)" id="slotsSideTitle">Horarios disponibles</h3>
           <div id="slotsArea">Selecciona un día en el calendario para ver las horas disponibles.</div>
-          <button class="btn btn-primary" style="width:100%; margin-top:16px; display:none" id="step3NextBtn" onclick="goStep(4)">Confirmar y continuar →</button>
         </div>
       </div>
 
-      <div class="btn-row" id="step3BtnRow"><button class="btn btn-ghost" onclick="goStep(2)" id="step3BackBtn">← Atrás</button></div>
+      <div class="btn-row" id="step3BtnRow">
+        <button class="btn btn-ghost" onclick="goStep(2)" id="step3BackBtn">← Atrás</button>
+        <button class="btn btn-primary" style="display:none" id="step3NextBtn" onclick="goStep(4)">Confirmar y continuar →</button>
+      </div>
     </div>
 
     <!-- STEP 4: Datos personales -->
