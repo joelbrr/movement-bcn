@@ -1562,9 +1562,16 @@
       if (el) {
         el.classList.add('active');
         updateProgress();
-        if (n === 1) renderServiceGrid();
         if (n === 2) renderProfGrid();
-        if (n === 3) renderCalendar();
+        if (n === 3) {
+          // Si ya hay una fecha seleccionada, sincronizamos el mes del calendario
+          if (S.fecha) {
+            const [y, m] = S.fecha.split('-').map(Number);
+            S.calYear = y;
+            S.calMonth = m;
+          }
+          renderCalendar();
+        }
         if (n === 4) { }
         if (n === 5) initPaymentStep();
         
