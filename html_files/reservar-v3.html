@@ -1731,6 +1731,7 @@
         else renderSlots();
       } else {
         document.getElementById('slotsSide').style.display = 'none';
+        document.getElementById('step3NextBtn').style.display = 'none';
         document.getElementById('slotsArea').innerHTML = 'Selecciona un día en el calendario para ver las horas disponibles.';
       }
     }
@@ -1795,10 +1796,16 @@
     async function renderSlots() {
       const area = document.getElementById('slotsArea');
       const side = document.getElementById('slotsSide');
+
+      if (!S.fecha) { 
+        side.style.display = 'none';
+        document.getElementById('step3NextBtn').style.display = 'none';
+        area.innerHTML = 'Selecciona un día en el calendario.'; 
+        return; 
+      }
+      
       side.style.display = 'block';
       document.getElementById('slotsSideTitle').textContent = 'Horarios disponibles';
-
-      if (!S.fecha) { area.innerHTML = '<div class="no-slots">Selecciona un día en el calendario.</div>'; return; }
 
       const servs = await DB.getServicios();
       const serv = servs.find(s => s.id === S.servicioId);
