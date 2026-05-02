@@ -254,12 +254,10 @@
       padding: 24px 28px;
       box-shadow: var(--shadow);
       display: none;
-      min-height: 680px;
     }
 
     .step-card.active {
-      display: flex;
-      flex-direction: column;
+      display: block;
       animation: fadeSlide .3s ease;
     }
     
@@ -267,8 +265,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: auto;
+      margin-top: 32px;
       padding-top: 24px;
+      border-top: 1px solid var(--border);
     }
 
     @keyframes fadeSlide {
