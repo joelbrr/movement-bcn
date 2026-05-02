@@ -1664,25 +1664,18 @@
       document.getElementById('autoOpt').classList.toggle('selected', S.profId === 'auto');
     }
 
-    function selectProfesional(id) { 
-      if (S.profId !== id) {
-        S.profId = id; 
-        S.fecha = null; 
-        S.hora = null; 
-        S.claseId = null;
-      }
-      renderProfGrid(); 
-    }
     function selectProf(id) { 
-      if (S.profId !== id) {
-        S.profId = id; 
+      const newId = String(id);
+      if (S.profId !== newId) {
+        S.profId = newId; 
         S.fecha = null; 
         S.hora = null; 
         S.claseId = null;
       }
-      document.getElementById('autoOpt').classList.remove('selected'); 
       renderProfGrid(); 
     }
+    // Alias para compatibilidad con el HTML
+    function selectProfesional(id) { selectProf(id); }
 
     // ── STEP 3 ──
     async function renderCalendar() {
@@ -1736,6 +1729,9 @@
       if (S.fecha) {
         if (S.servicioId === 'grupal') renderGroupClassesList();
         else renderSlots();
+      } else {
+        document.getElementById('slotsSide').style.display = 'none';
+        document.getElementById('slotsArea').innerHTML = 'Selecciona un día en el calendario para ver las horas disponibles.';
       }
     }
 
