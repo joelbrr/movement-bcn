@@ -1,11 +1,920 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="ca">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=fisioterapia-web.html">
-  <title>Movement Lab Bcn</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Movement Lab Bcn · Gestió activa del dolor, lesió i rendiment</title>
+<meta name="description" content="Centre de fisioteràpia, entrenament i podologia a Barcelona. Gestió activa del dolor i lesió, humanitzant la salut i el rendiment." />
+<meta name="theme-color" content="#0A0A0A" />
+<link rel="canonical" href="https://www.movementlabbcn.com/" />
+
+<!-- Favicon / icons -->
+<link rel="icon" type="image/jpeg" href="logo-movement.jpg" />
+<link rel="apple-touch-icon" href="logo-movement.jpg" />
+
+<!-- Open Graph / social sharing -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Movement Lab Bcn" />
+<meta property="og:title" content="Movement Lab Bcn · Fisioteràpia, entrenament i podologia a Barcelona" />
+<meta property="og:description" content="Gestió activa del dolor i lesió, humanitzant la salut i el rendiment. Centre de fisioteràpia, entrenament i podologia a Horta-Guinardó, Barcelona." />
+<meta property="og:image" content="logo-movement.jpg" />
+<meta property="og:locale" content="ca_ES" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Movement Lab Bcn" />
+<meta name="twitter:description" content="Fisioteràpia, entrenament i podologia a Barcelona." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --bg-2:#111111;
+    --ink:#F5F3EE;
+    --muted:rgba(245,243,238,.55);
+    --line:rgba(245,243,238,.12);
+    --line-strong:rgba(245,243,238,.22);
+    --accent:#E8541C;            /* orange triangle */
+    --accent-blue:#2D4DA8;       /* blue triangle */
+    --accent-yellow:#E8B84A;     /* yellow triangle */
+    --display:"Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body:"Inter", system-ui, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);background:var(--bg);color:var(--ink);
+    line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  ::selection{background:var(--accent);color:#fff}
+
+  .wrap{max-width:1440px;margin:0 auto;padding:0 32px}
+  @media (max-width:640px){.wrap{padding:0 20px}}
+
+  /* ============ NAV ============ */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:60;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 40px;transition:background .4s ease, backdrop-filter .4s ease, padding .3s;
+  }
+  .nav.scrolled{background:rgba(10,10,10,.78);backdrop-filter:blur(18px) saturate(140%);padding:14px 40px}
+  @media (max-width:640px){.nav,.nav.scrolled{padding:16px 20px}}
+
+  .brand{display:flex;align-items:center;gap:14px;color:var(--ink)}
+  .brand-logo{width:42px;height:42px;flex:none}
+  .brand-text{display:flex;flex-direction:column;line-height:1}
+  .brand-name{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.5px;text-transform:uppercase}
+  .brand-name em{font-style:normal;font-weight:400;opacity:.7;letter-spacing:1px;font-size:13px}
+  .brand-sub{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+
+  .nav-links{display:flex;align-items:center;gap:36px}
+  .nav-links a{font-size:14px;color:var(--ink);font-weight:500;position:relative;padding:6px 0}
+  .nav-links a:not(.btn)::after{
+    content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--accent);transition:width .3s ease;
+  }
+  .nav-links a:not(.btn):hover::after{width:100%}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:13px 22px;font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+    background:var(--ink);color:#0A0A0A;border:1px solid var(--ink);transition:all .3s ease;
+  }
+  .btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:#0A0A0A}
+  .btn .arr{transition:transform .3s}
+  .btn:hover .arr{transform:translateX(4px)}
+  /* Keep solid button text dark inside the nav (fixes cream-on-cream invisibility) */
+  .nav-links a.btn{color:#0A0A0A}
+  .nav-links a.btn:hover{color:#fff}
+
+  /* Language toggle */
+  .lang-toggle{
+    display:inline-flex;align-items:center;gap:6px;
+    background:none;border:1px solid var(--line-strong);color:var(--muted);
+    padding:8px 12px;font-family:var(--mono);font-size:12px;letter-spacing:1px;
+    cursor:pointer;transition:border-color .3s,color .3s;line-height:1;
+  }
+  .lang-toggle:hover{border-color:var(--ink);color:var(--ink)}
+  .lang-toggle .on{color:var(--accent);font-weight:600}
+  .lang-toggle .sep{opacity:.4}
+  @media (max-width:960px){
+    .lang-toggle{width:100%;justify-content:center;margin-top:8px}
+  }
+
+  .hamburger{display:none;background:none;border:1px solid var(--line-strong);color:var(--ink);width:42px;height:42px;cursor:pointer;font-size:18px}
+  @media (max-width:960px){
+    .nav-links{
+      position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:flex-start;gap:0;
+      background:#0A0A0A;border-top:1px solid var(--line);padding:24px 32px;display:none;
+    }
+    .nav-links.open{display:flex}
+    .nav-links a{padding:14px 0;width:100%;border-bottom:1px solid var(--line);font-size:18px}
+    .hamburger{display:grid;place-items:center}
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;min-height:100vh;width:100%;overflow:hidden;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:120px 0 56px;
+  }
+  .hero-bg{
+    position:absolute;inset:0;z-index:0;
+    background-image:
+      linear-gradient(180deg, rgba(10,10,10,.55) 0%, rgba(10,10,10,.25) 35%, rgba(10,10,10,.85) 100%),
+      url('https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=2400&q=80');
+    background-size:cover;background-position:center;
+    transform:scale(1.06);
+    animation:slowZoom 20s ease-out forwards;
+  }
+  @keyframes slowZoom{to{transform:scale(1)}}
+  .hero-grain{
+    position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.08;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .hero-content{position:relative;z-index:2;width:100%;padding:0 40px}
+  @media (max-width:640px){.hero-content{padding:0 20px}}
+
+  .hero-meta{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);
+    margin-bottom:48px;
+  }
+  .hero-meta .dot{display:inline-block;width:6px;height:6px;background:var(--accent);border-radius:50%;margin-right:8px;vertical-align:middle;box-shadow:0 0 12px var(--accent);animation:blink 2s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.4}}
+
+  h1.headline{
+    font-family:var(--display);font-weight:800;
+    font-size:clamp(2.4rem, 7.5vw, 8rem);
+    line-height:.95;letter-spacing:-.035em;
+    color:var(--ink);max-width:1180px;
+    text-wrap:balance;
+  }
+  h1.headline .word{display:inline-block;overflow:hidden;vertical-align:bottom;padding:0 .04em}
+  h1.headline .word > span{display:inline-block;transform:translateY(110%);opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rise{to{transform:translateY(0);opacity:1}}
+  h1.headline .accent{color:var(--accent)}
+
+  .hero-foot{
+    display:flex;justify-content:space-between;align-items:flex-end;gap:40px;
+    margin-top:56px;padding-top:32px;border-top:1px solid var(--line);
+    opacity:0;transform:translateY(20px);animation:fadeUp 1s .9s ease-out forwards;
+  }
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+  .hero-foot p{max-width:420px;color:rgba(245,243,238,.78);font-size:15px;line-height:1.6}
+  .hero-foot .cta{display:flex;gap:14px;flex-wrap:wrap}
+  @media (max-width:780px){.hero-foot{flex-direction:column;align-items:stretch}}
+
+  .hero-card{
+    position:absolute;right:40px;bottom:120px;z-index:3;
+    width:280px;background:rgba(10,10,10,.6);backdrop-filter:blur(14px);
+    border:1px solid var(--line-strong);padding:18px;
+    opacity:0;animation:fadeUp 1s 1.2s ease-out forwards;
+  }
+  .hero-card-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+  .hero-card-title{font-family:var(--display);font-weight:700;font-size:18px;margin-top:8px}
+  .hero-card-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+  .hero-card .ext{color:var(--accent)}
+  @media (max-width:980px){.hero-card{display:none}}
+
+  /* ============ SECTIONS ============ */
+  section{padding:140px 0;position:relative}
+  @media (max-width:780px){section{padding:90px 0}}
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);
+    margin-bottom:24px;
+  }
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--accent)}
+
+  .h2{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(2rem,4.5vw,4rem);line-height:1;letter-spacing:-.025em;
+    max-width:980px;
+  }
+  .h2 .accent{color:var(--accent)}
+  .lead{color:var(--muted);font-size:17px;max-width:620px;margin-top:24px;line-height:1.7}
+
+  /* TRUST / STATS strip */
+  .stats{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:48px 0;
+  }
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
+  @media (max-width:780px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:32px}}
+  .stat-num{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,4vw,3.4rem);letter-spacing:-.02em;line-height:1}
+  .stat-num .plus{color:var(--accent)}
+  .stat-lab{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+  /* SERVICIOS — editorial rows */
+  .row-svc{
+    display:grid;grid-template-columns:80px 1.2fr 2fr 60px;gap:32px;
+    align-items:center;padding:38px 0;border-top:1px solid var(--line);
+    cursor:pointer;transition:background .35s ease, padding .35s;
+  }
+  .row-svc:last-child{border-bottom:1px solid var(--line)}
+  .row-svc:hover{background:rgba(232,84,28,.05);padding-left:16px;padding-right:16px}
+  .row-num{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:1px}
+  .row-title{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,2.6vw,2.2rem);letter-spacing:-.02em;line-height:1.05;transition:color .3s, transform .3s}
+  .row-svc:hover .row-title{color:var(--accent)}
+  .row-text{color:var(--muted);font-size:15px;line-height:1.6;max-width:560px}
+  .row-arr{justify-self:end;width:40px;height:40px;border:1px solid var(--line-strong);display:grid;place-items:center;transition:all .3s;font-size:18px;color:var(--ink)}
+  .row-svc:hover .row-arr{background:var(--accent);border-color:var(--accent);color:#fff;transform:rotate(-45deg)}
+  .row-extra{
+    grid-column:1 / -1;overflow:hidden;max-height:0;transition:max-height .5s ease, margin .4s;
+    color:var(--muted);font-size:15px;line-height:1.7;max-width:760px;
+  }
+  .row-extra.open{max-height:240px;margin-top:18px}
+  @media (max-width:780px){
+    .row-svc{grid-template-columns:50px 1fr 40px;gap:18px}
+    .row-text{grid-column:2 / 4;margin-top:8px}
+  }
+
+  /* NOSOTROS */
+  .about{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  @media (max-width:880px){.about{grid-template-columns:1fr;gap:50px}}
+  .about-img{
+    aspect-ratio:4/5;background:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80') center/cover;
+    filter:grayscale(.15) contrast(1.05);
+  }
+  .about-body p{color:rgba(245,243,238,.75);margin-bottom:18px;font-size:16px;line-height:1.75;max-width:520px}
+  .diffs{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:36px;background:var(--line)}
+  .diff{padding:24px 22px;background:var(--bg)}
+  .diff h4{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.2px;margin-bottom:6px}
+  .diff p{color:var(--muted);font-size:13.5px;line-height:1.6}
+  .diff .di{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1.5px;margin-bottom:10px;display:block}
+
+  /* EQUIPO */
+  .team{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:64px;background:var(--line)}
+  @media (max-width:880px){.team{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.team{grid-template-columns:1fr}}
+  .member{padding:36px 28px;background:var(--bg);transition:background .3s;position:relative}
+  .member:hover{background:#141414}
+  .mem-init{
+    width:54px;height:54px;background:transparent;border:1px solid var(--line-strong);
+    display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.5px;
+    margin-bottom:24px;transition:all .3s;
+  }
+  .member:hover .mem-init{background:var(--accent);border-color:var(--accent);color:#fff}
+  .member h4{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em}
+  .member .role{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1.4px;text-transform:uppercase;margin:8px 0 14px}
+  .member p{color:var(--muted);font-size:14px;line-height:1.6}
+
+  /* TESTIMONIOS */
+  .marquee{margin-top:64px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+  .track{display:flex;gap:24px;width:max-content;animation:scroll 48s linear infinite}
+  .marquee:hover .track{animation-play-state:paused}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+  .testi{
+    width:440px;flex:0 0 440px;padding:36px;
+    background:#111;border:1px solid var(--line);
+  }
+  .stars{font-family:var(--mono);color:var(--accent-yellow);letter-spacing:3px;margin-bottom:16px;font-size:14px}
+  .testi blockquote{font-family:var(--display);font-weight:500;font-size:18px;line-height:1.5;letter-spacing:-.01em;margin-bottom:22px}
+  .testi-by{display:flex;align-items:center;gap:14px;padding-top:18px;border-top:1px solid var(--line)}
+  .testi-by .mem-init{width:42px;height:42px;font-size:12px;margin:0}
+  .testi-by strong{display:block;font-size:14px;font-weight:600}
+  .testi-by span{font-family:var(--mono);font-size:10px;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+
+  /* UBICACION */
+  .loc{display:grid;grid-template-columns:1fr 1.2fr;gap:1px;margin-top:64px;background:var(--line);min-height:520px}
+  @media (max-width:880px){.loc{grid-template-columns:1fr}}
+  .loc-info{background:var(--bg);padding:48px}
+  .loc-info dl{display:grid;gap:28px}
+  .loc-info dt{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .loc-info dd{font-size:16px;line-height:1.5}
+  .loc-info dd span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+  .loc-info .btn{margin-top:36px}
+  .map{background:#111}
+  .map iframe{width:100%;height:100%;min-height:520px;border:0;filter:invert(.92) hue-rotate(180deg) saturate(.4) contrast(1.05)}
+
+  /* CTA strip */
+  .cta-strip{
+    padding:120px 0;border-top:1px solid var(--line);text-align:center;
+    background:radial-gradient(800px 400px at 50% 50%, rgba(232,84,28,.10), transparent 70%);
+  }
+  .cta-strip h2{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,6vw,5.6rem);line-height:1;letter-spacing:-.03em;max-width:1100px;margin:0 auto}
+  .cta-strip h2 .accent{color:var(--accent)}
+  .cta-strip .btn{margin-top:48px;padding:18px 32px;font-size:14px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--line);padding:80px 0 36px}
+  .foot{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+  @media (max-width:880px){.foot{grid-template-columns:1fr 1fr;gap:36px}}
+  @media (max-width:520px){.foot{grid-template-columns:1fr}}
+  .foot h5{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .foot ul{list-style:none}
+  .foot li{margin-bottom:10px;font-size:14.5px}
+  .foot li a:hover{color:var(--accent)}
+  .foot p{color:var(--muted);font-size:14px;line-height:1.65;max-width:380px;margin-top:18px}
+  .socials{display:flex;gap:10px;margin-top:24px}
+  .socials a{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line-strong);font-family:var(--mono);font-size:11px;letter-spacing:1px;transition:all .3s}
+  .socials a:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .copy{
+    margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);
+  }
+
+  /* WhatsApp float */
+  .wa{
+    position:fixed;bottom:26px;right:26px;z-index:70;
+    width:58px;height:58px;background:#25D366;color:#fff;
+    display:grid;place-items:center;box-shadow:0 14px 40px -10px rgba(37,211,102,.55);
+    transition:transform .3s;
+  }
+  .wa:hover{transform:scale(1.08)}
+
+  /* Reveal */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity 1s ease, transform 1s ease}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+
+  /* Anchor offset so fixed nav doesn't cover section titles */
+  section[id], header[id]{scroll-margin-top:90px}
+
+  /* Keyboard focus visibility */
+  a:focus-visible,button:focus-visible,.row-svc:focus-visible{
+    outline:2px solid var(--accent);outline-offset:3px;border-radius:2px;
+  }
+
+  /* Skip link for keyboard / screen-reader users */
+  .skip-link{
+    position:absolute;left:16px;top:-60px;z-index:200;
+    background:var(--ink);color:#0A0A0A;padding:10px 18px;font-weight:600;
+    font-size:13px;letter-spacing:.4px;transition:top .25s ease;
+  }
+  .skip-link:focus{top:16px}
+
+  /* Real logo image in nav/footer */
+  .brand-logo-img{width:42px;height:42px;flex:none;object-fit:contain;border-radius:8px}
+
+  /* Respect users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important;
+    }
+    .hero-bg{animation:none;transform:none}
+    .track{animation:none}
+    h1.headline .word > span{transform:none;opacity:1}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
 </head>
 <body>
-  <p>Redirigiendo... <a href="fisioterapia-web.html">Haz clic aquí si no te redirige automáticamente.</a></p>
+
+<a href="#servicios" class="skip-link" data-i18n="skip">Salta al contingut</a>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <a href="#" class="brand" aria-label="Movement Lab Bcn · inici">
+    <svg class="brand-logo" viewBox="0 0 100 100" fill="none" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M50 9 L70 44 L30 44 Z" stroke="#2D4DA8" stroke-width="7.5"/>
+      <path d="M29 43 L49 78 L9 78 Z" stroke="#E8B84A" stroke-width="7.5"/>
+      <path d="M71 43 L91 78 L51 78 Z" stroke="#E8541C" stroke-width="7.5"/>
+    </svg>
+    <span class="brand-text">
+      <span class="brand-name">Movement <em>Lab</em></span>
+      <span class="brand-sub">Barcelona · since 2018</span>
+    </span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#servicios" data-i18n="nav.serveis">Serveis</a>
+    <a href="#nosotros" data-i18n="nav.centre">Centre</a>
+    <a href="#equipo" data-i18n="nav.equip">Equip</a>
+    <a href="#ubicacion" data-i18n="nav.contacte">Contacte</a>
+    <a href="reservar-v3.html" class="btn" data-i18n="btn.cita">Demanar cita <span class="arr">→</span></a>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Canviar idioma / Cambiar idioma">
+      <span data-lang="ca">CA</span><span class="sep">/</span><span data-lang="es">ES</span>
+    </button>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menú">☰</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-card">
+    <div class="hero-card-label" data-i18n="hero.card_label">/ Pròxima disponibilitat</div>
+    <div class="hero-card-title" data-i18n="hero.card_title">Avui · Places obertes</div>
+    <div class="hero-card-foot">
+      <span data-i18n="hero.card_foot">Cita en 24h</span>
+      <span class="ext">↗</span>
+    </div>
+  </div>
+
+  <div class="hero-content wrap">
+    <div class="hero-meta">
+      <span data-i18n="hero.meta_left"><span class="dot"></span>Centre obert · Horta-Guinardó</span>
+      <span data-i18n="hero.meta_right">N°01 / Fisioteràpia · Entrenament · Podologia</span>
+    </div>
+
+    <h1 class="headline" id="headline" data-i18n="hero.headline">
+Gestió activa del dolor i lesió, humanitzant la <span class="accent">salut</span> i el <span class="accent">rendiment</span>.
+    </h1>
+
+    <div class="hero-foot">
+      <p data-i18n="hero.foot_p">Un centre de fisioteràpia, entrenament i podologia a Barcelona on la ciència, el moviment i el tracte humà treballen junts per la teva recuperació.</p>
+      <div class="cta">
+        <a href="reservar-v3.html" class="btn" data-i18n="btn.cita">Demanar cita <span class="arr">→</span></a>
+        <a href="#servicios" class="btn ghost" data-i18n="hero.see_services">Veure serveis</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats" style="padding:48px 0">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="reveal"><div class="stat-num"><span class="plus">+</span><span data-count="7">0</span></div><div class="stat-lab" data-i18n="stat.exp">Anys d'experiència</div></div>
+      <div class="reveal d1"><div class="stat-num"><span class="plus">+</span><span data-count="2500">0</span></div><div class="stat-lab" data-i18n="stat.patients">Pacients tractats</div></div>
+      <div class="reveal d2"><div class="stat-num"><span data-count="6">0</span></div><div class="stat-lab" data-i18n="stat.pros">Professionals</div></div>
+      <div class="reveal d3"><div class="stat-num"><span data-count="98">0</span><span class="plus">%</span></div><div class="stat-lab" data-i18n="stat.satisf">Satisfacció</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="svc.eyebrow">01 / Serveis</span>
+      <h2 class="h2" data-i18n="svc.h2">Tot el que necessites per a la teva <span class="accent">recuperació.</span></h2>
+      <p class="lead" data-i18n="svc.lead">Un enfocament integral on la fisioteràpia, la rehabilitació, l'entrenament i la podologia treballen coordinats per aconseguir els millors resultats.</p>
+    </div>
+
+    <div class="svc-list" style="margin-top:80px">
+      <div class="row-svc reveal">
+        <div class="row-num">/01</div>
+        <div class="row-title" data-i18n="svc1.title">Fisioteràpia</div>
+        <div class="row-text" data-i18n="svc1.text">Tractament especialitzat de lesions musculoesquelètiques, dolor crònic i patologies de l'aparell locomotor.</div>
+        <div class="row-arr">+</div>
+        <div class="row-extra" data-i18n="svc1.extra">Inclou valoració funcional completa, teràpia manual, punció seca, electroteràpia i exercici terapèutic personalitzat. Atenem lesions esportives, cervicàlgies, lumbàlgies i molt més.</div>
+      </div>
+      <div class="row-svc reveal d1">
+        <div class="row-num">/02</div>
+        <div class="row-title" data-i18n="svc2.title">Rehabilitació</div>
+        <div class="row-text" data-i18n="svc2.text">Recuperació funcional després de cirurgies, fractures o lesions greus amb protocols individualitzats.</div>
+        <div class="row-arr">+</div>
+        <div class="row-extra" data-i18n="svc2.extra">Treballem amb cirurgians i metges de referència per garantir una recuperació segura i eficient. Post-operatori de genoll, maluc, espatlla i columna.</div>
+      </div>
+      <div class="row-svc reveal d2">
+        <div class="row-num">/03</div>
+        <div class="row-title" data-i18n="svc3.title">Entrenament</div>
+        <div class="row-text" data-i18n="svc3.text">Programes de força i entrenament funcional dissenyats per especialistes en rendiment i salut.</div>
+        <div class="row-arr">+</div>
+        <div class="row-extra" data-i18n="svc3.extra">Ideal per a esportistes que volen millorar el rendiment, persones que busquen posar-se en forma o pacients en fase de readaptació després d'una lesió.</div>
+      </div>
+      <div class="row-svc reveal d3">
+        <div class="row-num">/04</div>
+        <div class="row-title" data-i18n="svc4.title">Podologia</div>
+        <div class="row-text" data-i18n="svc4.text">Estudi biomecànic, plantilles personalitzades i tractament integral del peu.</div>
+        <div class="row-arr">+</div>
+        <div class="row-extra" data-i18n="svc4.extra">Anàlisi del trepitjar, plantilles fetes a mida, tractament de patologies del peu i seguiment esportiu per millorar la teva mecànica de moviment.</div>
+      </div>
+      <div class="row-svc reveal d4">
+        <div class="row-num">/05</div>
+        <div class="row-title" data-i18n="svc5.title">Massatges terapèutics</div>
+        <div class="row-text" data-i18n="svc5.text">Massatge descontracturant d'esquena, massatge esportiu i tècniques de relaxació muscular profunda.</div>
+        <div class="row-arr">+</div>
+        <div class="row-extra" data-i18n="svc5.extra">Sessions de 30 o 60 minuts adaptades a les teves necessitats. Especialment indicat per a contractures, estrès muscular, recuperació post-entrenament i benestar general.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros">
+  <div class="wrap">
+    <div class="about">
+      <div class="reveal">
+        <div class="about-img"></div>
+      </div>
+      <div class="about-body reveal d1">
+        <span class="eyebrow" data-i18n="about.eyebrow">02 / El centre</span>
+        <h2 class="h2" style="font-size:clamp(1.8rem,3.4vw,3rem)" data-i18n="about.h2">Un centre on la <span class="accent">ciència</span> i el cuidat es troben.</h2>
+        <p style="margin-top:28px" data-i18n="about.p1">A Movement Lab Bcn portem més de 7 anys ajudant persones a recuperar-se i millorar la seva qualitat de vida. El nostre enfocament combina l'evidència científica amb el tracte personalitzat que mereix cada pacient.</p>
+        <p data-i18n="about.p2">Comptem amb equipament d'última generació i un equip en formació constant, sempre compromès amb els millors resultats.</p>
+
+        <div class="diffs">
+          <div class="diff"><span class="di">/ 01</span><h4 data-i18n="diff1.h4">Tractament personalitzat</h4><p data-i18n="diff1.p">Cada pacient rep un pla adaptat als seus objectius i condició física.</p></div>
+          <div class="diff"><span class="di">/ 02</span><h4 data-i18n="diff2.h4">Evidència científica</h4><p data-i18n="diff2.p">Apliquem tècniques amb suport clínic i actualització constant.</p></div>
+          <div class="diff"><span class="di">/ 03</span><h4 data-i18n="diff3.h4">Equip multidisciplinar</h4><p data-i18n="diff3.p">Fisioterapeutes i preparadors treballant de manera coordinada.</p></div>
+          <div class="diff"><span class="di">/ 04</span><h4 data-i18n="diff4.h4">Seguiment continu</h4><p data-i18n="diff4.p">T'acompanyem en cada etapa de la teva recuperació, sense presses.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section id="equipo">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="team.eyebrow">03 / Equip</span>
+      <h2 class="h2" data-i18n="team.h2">Professionals <span class="accent">compromesos</span> amb la teva salut.</h2>
+      <p class="lead" data-i18n="team.lead">Un equip multidisciplinar de fisioterapeutes i preparadors físics amb àmplia experiència i formació especialitzada.</p>
+    </div>
+
+    <div class="team">
+      <div class="member reveal"><div class="mem-init">AL</div><h4>Ana López</h4><div class="role" data-i18n="team1.role">Fisio · Directora</div><p data-i18n="team1.bio">Especialista en fisioteràpia musculoesquelètica i neurològica. Màster en Teràpia Manual Ortopèdica.</p></div>
+      <div class="member reveal d1"><div class="mem-init">CM</div><h4>Carlos Martín</h4><div class="role" data-i18n="team2.role">Fisio · Esportiu</div><p data-i18n="team2.bio">Expert en lesions esportives i readaptació. Col·labora amb clubs i esportistes de competició.</p></div>
+      <div class="member reveal d2"><div class="mem-init">MG</div><h4>María García</h4><div class="role" data-i18n="team3.role">Fisio · Sòl Pelvià</div><p data-i18n="team3.bio">Especialitzada en fisioteràpia pèlvica, embaràs i postpart. Formació en uroginecologia.</p></div>
+      <div class="member reveal"><div class="mem-init">JR</div><h4>Javier Ruiz</h4><div class="role" data-i18n="team4.role">Preparador físic</div><p data-i18n="team4.bio">Llicenciat en CCAFD. Especialista en entrenament funcional, força i readaptació física.</p></div>
+      <div class="member reveal d1"><div class="mem-init">LF</div><h4>Laura Fernández</h4><div class="role" data-i18n="team5.role">Fisio · Neurològica</div><p data-i18n="team5.bio">Especialista en neurorehabilitació. Tècnica Bobath i tractament de patologies neurològiques.</p></div>
+      <div class="member reveal d2"><div class="mem-init">PS</div><h4>Pablo Santos</h4><div class="role" data-i18n="team6.role">Fisio · Massatges</div><p data-i18n="team6.bio">Especialista en massoteràpia, drenatge limfàtic i tècniques de relaxació terapèutica.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section id="testimonios">
+  <div class="wrap reveal">
+    <span class="eyebrow" data-i18n="testi.eyebrow">04 / Testimonis</span>
+    <h2 class="h2" data-i18n="testi.h2">El que diuen els <span class="accent">nostres pacients.</span></h2>
+    <p class="lead" data-i18n="testi.lead">Més de 2.500 pacients han confiat en nosaltres. Aquestes són algunes de les seves històries.</p>
+  </div>
+  <div class="marquee">
+    <div class="track" id="track"></div>
+  </div>
+</section>
+
+<!-- UBICACION -->
+<section id="ubicacion">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="loc.eyebrow">05 / Contacte</span>
+      <h2 class="h2" data-i18n="loc.h2">Vine a <span class="accent">visitar-nos.</span></h2>
+    </div>
+    <div class="loc">
+      <div class="loc-info reveal">
+        <dl>
+          <div><dt data-i18n="loc.dt_address">Adreça</dt><dd>Carrer d'Angel Marques, 14-18<span data-i18n="loc.address_sub">Horta-Guinardó · 08035 Barcelona</span></dd></div>
+          <div><dt data-i18n="loc.dt_phone">Telèfon</dt><dd><a href="tel:+34634249673">+34 634 249 673</a><span data-i18n="loc.phone_sub">També per WhatsApp</span></dd></div>
+          <div><dt data-i18n="loc.dt_email">Email</dt><dd><a href="mailto:info@movementlabbcn.com">info@movementlabbcn.com</a></dd></div>
+          <div><dt data-i18n="loc.dt_hours">Horari</dt><dd data-i18n="loc.hours">Dilluns – Divendres · 8:00 – 21:00<span>Dissabte i diumenge: tancat</span></dd></div>
+        </dl>
+        <a href="reservar-v3.html" class="btn" data-i18n="btn.cita">Demanar cita <span class="arr">→</span></a>
+      </div>
+      <div class="map reveal d1">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2991.334327052494!2d2.14060977514105!3d41.43196679323026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a4bd803da464b5%3A0x9c7c56873e007f2b!2sMovement%20Lab%20Bcn%20(Fisioterapia%2C%20Entrenamiento%20y%20Podolog%C3%ADa)!5e0!3m2!1sen!2ses!4v1774348470887!5m2!1sen!2ses" title="Mapa · Movement Lab Bcn, Horta-Guinardó" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+  <div class="wrap reveal">
+    <h2 data-i18n="cta.h2">Comença la teva <span class="accent">recuperació</span> avui.</h2>
+    <a href="reservar-v3.html" class="btn" data-i18n="btn.cita">Demanar cita <span class="arr">→</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#" class="brand" aria-label="Movement Lab Bcn · inici">
+          <svg class="brand-logo" viewBox="0 0 100 100" fill="none" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M50 9 L70 44 L30 44 Z" stroke="#2D4DA8" stroke-width="7.5"/>
+            <path d="M29 43 L49 78 L9 78 Z" stroke="#E8B84A" stroke-width="7.5"/>
+            <path d="M71 43 L91 78 L51 78 Z" stroke="#E8541C" stroke-width="7.5"/>
+          </svg>
+          <span class="brand-text">
+            <span class="brand-name">Movement <em>Lab</em></span>
+            <span class="brand-sub">Barcelona · since 2018</span>
+          </span>
+        </a>
+        <p data-i18n="foot.brand_p">El teu centre de referència en fisioteràpia, entrenament i podologia a Barcelona. Gestió activa del dolor i lesió, humanitzant la salut i el rendiment.</p>
+        <div class="socials">
+          <a href="#" aria-label="Instagram">IG</a>
+          <a href="#" aria-label="Facebook">FB</a>
+          <a href="#" aria-label="LinkedIn">IN</a>
+        </div>
+      </div>
+      <div>
+        <h5 data-i18n="foot.serveis_h5">/ Serveis</h5>
+        <ul>
+          <li><a href="#servicios" data-i18n="svc1.title">Fisioteràpia</a></li>
+          <li><a href="#servicios" data-i18n="svc2.title">Rehabilitació</a></li>
+          <li><a href="#servicios" data-i18n="svc3.title">Entrenament</a></li>
+          <li><a href="#servicios" data-i18n="svc4.title">Podologia</a></li>
+          <li><a href="#servicios" data-i18n="foot.massatges">Massatges</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 data-i18n="foot.centre_h5">/ Centre</h5>
+        <ul>
+          <li><a href="#nosotros" data-i18n="foot.about">Sobre nosaltres</a></li>
+          <li><a href="#equipo" data-i18n="foot.team">L'equip</a></li>
+          <li><a href="#ubicacion" data-i18n="foot.directions">Com arribar</a></li>
+          <li><a href="reservar-v3.html" data-i18n="link.cita">Demanar cita</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 data-i18n="foot.contacte_h5">/ Contacte</h5>
+        <ul>
+          <li>+34 634 249 673</li>
+          <li>info@movementlabbcn.com</li>
+          <li>Horta-Guinardó, BCN</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copy">
+      <span>© 2026 Movement Lab Bcn · All rights reserved</span>
+      <span>Barcelona · ES</span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/34634249673?text=Hola,%20m'agradaria%20demanar%20informació" aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.149-.173.198-.297.297-.495.099-.198.05-.372-.025-.521-.074-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+</a>
+
+<script>
+  // Nav scroll
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>30));
+
+  // Hamburger
+  const links=document.getElementById('navLinks');
+  document.getElementById('hamburger').onclick=()=>links.classList.toggle('open');
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>links.classList.remove('open')));
+
+  // Word-by-word reveal for headline (callable, so it replays on language change)
+  function splitHeadline(){
+    const h=document.getElementById('headline');
+    // Split into words while preserving inner spans (.accent)
+    const walk=(node, words)=>{
+      node.childNodes.forEach(c=>{
+        if(c.nodeType===3){
+          const parts=c.textContent.split(/(\s+)/);
+          const frag=document.createDocumentFragment();
+          parts.forEach(p=>{
+            if(p.match(/^\s+$/)){frag.appendChild(document.createTextNode(p));return;}
+            if(!p)return;
+            const w=document.createElement('span');w.className='word';
+            const inner=document.createElement('span');inner.textContent=p;
+            w.appendChild(inner);words.push(inner);frag.appendChild(w);
+          });
+          c.replaceWith(frag);
+        } else if(c.nodeType===1){
+          // wrap the span's text too
+          const inner=c;
+          const txt=inner.textContent;inner.textContent='';
+          const parts=txt.split(/(\s+)/);
+          parts.forEach(p=>{
+            if(p.match(/^\s+$/)){inner.appendChild(document.createTextNode(p));return;}
+            if(!p)return;
+            const w=document.createElement('span');w.className='word';
+            const i2=document.createElement('span');i2.textContent=p;
+            w.appendChild(i2);words.push(i2);inner.appendChild(w);
+          });
+        }
+      });
+    };
+    const words=[];walk(h,words);
+    words.forEach((w,i)=>w.style.animationDelay=(0.08+i*0.06)+'s');
+  }
+
+  // Reveal
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Counters
+  const cio=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target;const target=+el.dataset.count;let cur=0;
+    const step=Math.max(1,Math.floor(target/50));
+    const t=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(t)}el.textContent=cur.toLocaleString('es-ES');},24);
+    cio.unobserve(el);
+  }),{threshold:.4});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  // Service row expand (mouse + keyboard accessible)
+  document.querySelectorAll('.row-svc').forEach(row=>{
+    row.setAttribute('role','button');
+    row.setAttribute('tabindex','0');
+    row.setAttribute('aria-expanded','false');
+    const toggle=()=>{
+      const ex=row.querySelector('.row-extra');const arr=row.querySelector('.row-arr');
+      const open=ex.classList.toggle('open');
+      arr.textContent=open?'–':'+';
+      row.setAttribute('aria-expanded',open?'true':'false');
+    };
+    row.addEventListener('click',toggle);
+    row.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}
+    });
+  });
+
+  // Testimonials marquee (rebuilt per language)
+  const TESTIS={
+    ca:[
+      {i:'RM',n:'Roberto M.',m:'Lumbàlgia crònica · 45',t:'Portava mesos amb una lumbàlgia crònica que m\'impedia treballar. En 6 setmanes amb l\'Ana vaig poder reprendre la meva vida normal. Tracte excepcional.'},
+      {i:'SP',n:'Sara P.',m:'Post-op genoll · 32',t:'Em van operar del genoll i a Movement Lab Bcn van fer una rehabilitació increïble. En 3 mesos vaig tornar a córrer. No podria estar més contenta.'},
+      {i:'DL',n:'Diego L.',m:'Entrenament · 28',t:'Vinc a entrenament amb el Javier des de fa un any. He millorat més que en anys de gimnàs convencional. L\'equip és molt professional.'},
+      {i:'MV',n:'Marta V.',m:'Postpart · 34',t:'La María em va acompanyar tot el postpart. Es nota la formació, l\'escolta i el rigor. Tornaria sense dubtar-ho.'},
+      {i:'JT',n:'Jordi T.',m:'Esquena crònica · 52',t:'Després de provar de tot, aquí he trobat un equip que escolta i que treballa amb mètode. La meva esquena fa anys que no estava tan bé.'}
+    ],
+    es:[
+      {i:'RM',n:'Roberto M.',m:'Lumbalgia crónica · 45',t:'Llevaba meses con una lumbalgia crónica que me impedía trabajar. En 6 semanas con Ana pude retomar mi vida normal. Un trato excepcional.'},
+      {i:'SP',n:'Sara P.',m:'Post-op rodilla · 32',t:'Me operaron de la rodilla y en Movement Lab Bcn hicieron una rehabilitación increíble. En 3 meses volví a correr. No podría estar más contenta.'},
+      {i:'DL',n:'Diego L.',m:'Entrenamiento · 28',t:'Vengo a entrenar con Javier desde hace un año. He mejorado más que en años de gimnasio convencional. El equipo es muy profesional.'},
+      {i:'MV',n:'Marta V.',m:'Postparto · 34',t:'María me acompañó durante todo el postparto. Se nota la formación, la escucha y el rigor. Volvería sin dudarlo.'},
+      {i:'JT',n:'Jordi T.',m:'Espalda crónica · 52',t:'Después de probarlo todo, aquí he encontrado un equipo que escucha y que trabaja con método. Mi espalda hace años que no estaba tan bien.'}
+    ]
+  };
+  const track=document.getElementById('track');
+  function buildTestimonials(lang){
+    const list=TESTIS[lang]||TESTIS.ca;
+    track.innerHTML=[...list,...list].map(x=>`
+    <div class="testi">
+      <div class="stars">★★★★★</div>
+      <blockquote>"${x.t}"</blockquote>
+      <div class="testi-by"><div class="mem-init">${x.i}</div><div><strong>${x.n}</strong><span>${x.m}</span></div></div>
+    </div>`).join('');
+  }
+
+  // Subtle hero parallax (skipped when user prefers reduced motion)
+  const bg=document.querySelector('.hero-bg');
+  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(bg && !reduceMotion){
+    addEventListener('scroll',()=>{if(scrollY<innerHeight)bg.style.transform=`scale(1.06) translateY(${scrollY*0.18}px)`});
+  }
+
+  // ======== Bilingual content (CA / ES) ========
+  const I18N={
+    "skip":{ca:`Salta al contingut`,es:`Saltar al contenido`},
+
+    "nav.serveis":{ca:`Serveis`,es:`Servicios`},
+    "nav.centre":{ca:`Centre`,es:`Nosotros`},
+    "nav.equip":{ca:`Equip`,es:`Equipo`},
+    "nav.contacte":{ca:`Contacte`,es:`Contacto`},
+    "btn.cita":{ca:`Demanar cita <span class="arr">→</span>`,es:`Pedir cita <span class="arr">→</span>`},
+    "link.cita":{ca:`Demanar cita`,es:`Pedir cita`},
+
+    "hero.card_label":{ca:`/ Pròxima disponibilitat`,es:`/ Próxima disponibilidad`},
+    "hero.card_title":{ca:`Avui · Places obertes`,es:`Hoy · Plazas disponibles`},
+    "hero.card_foot":{ca:`Cita en 24h`,es:`Cita en 24h`},
+    "hero.meta_left":{ca:`<span class="dot"></span>Centre obert · Horta-Guinardó`,es:`<span class="dot"></span>Centro abierto · Horta-Guinardó`},
+    "hero.meta_right":{ca:`N°01 / Fisioteràpia · Entrenament · Podologia`,es:`N°01 / Fisioterapia · Entrenamiento · Podología`},
+    "hero.headline":{ca:`Gestió activa del dolor i lesió, humanitzant la <span class="accent">salut</span> i el <span class="accent">rendiment</span>.`,es:`Gestión activa del dolor y la lesión, humanizando la <span class="accent">salud</span> y el <span class="accent">rendimiento</span>.`},
+    "hero.foot_p":{ca:`Un centre de fisioteràpia, entrenament i podologia a Barcelona on la ciència, el moviment i el tracte humà treballen junts per la teva recuperació.`,es:`Un centro de fisioterapia, entrenamiento y podología en Barcelona donde la ciencia, el movimiento y el trato humano trabajan juntos por tu recuperación.`},
+    "hero.see_services":{ca:`Veure serveis`,es:`Ver servicios`},
+
+    "stat.exp":{ca:`Anys d'experiència`,es:`Años de experiencia`},
+    "stat.patients":{ca:`Pacients tractats`,es:`Pacientes tratados`},
+    "stat.pros":{ca:`Professionals`,es:`Profesionales`},
+    "stat.satisf":{ca:`Satisfacció`,es:`Satisfacción`},
+
+    "svc.eyebrow":{ca:`01 / Serveis`,es:`01 / Servicios`},
+    "svc.h2":{ca:`Tot el que necessites per a la teva <span class="accent">recuperació.</span>`,es:`Todo lo que necesitas para tu <span class="accent">recuperación.</span>`},
+    "svc.lead":{ca:`Un enfocament integral on la fisioteràpia, la rehabilitació, l'entrenament i la podologia treballen coordinats per aconseguir els millors resultats.`,es:`Un enfoque integral donde la fisioterapia, la rehabilitación, el entrenamiento y la podología trabajan coordinados para conseguir los mejores resultados.`},
+    "svc1.title":{ca:`Fisioteràpia`,es:`Fisioterapia`},
+    "svc1.text":{ca:`Tractament especialitzat de lesions musculoesquelètiques, dolor crònic i patologies de l'aparell locomotor.`,es:`Tratamiento especializado de lesiones musculoesqueléticas, dolor crónico y patologías del aparato locomotor.`},
+    "svc1.extra":{ca:`Inclou valoració funcional completa, teràpia manual, punció seca, electroteràpia i exercici terapèutic personalitzat. Atenem lesions esportives, cervicàlgies, lumbàlgies i molt més.`,es:`Incluye valoración funcional completa, terapia manual, punción seca, electroterapia y ejercicio terapéutico personalizado. Atendemos lesiones deportivas, cervicalgias, lumbalgias y mucho más.`},
+    "svc2.title":{ca:`Rehabilitació`,es:`Rehabilitación`},
+    "svc2.text":{ca:`Recuperació funcional després de cirurgies, fractures o lesions greus amb protocols individualitzats.`,es:`Recuperación funcional tras cirugías, fracturas o lesiones graves con protocolos individualizados.`},
+    "svc2.extra":{ca:`Treballem amb cirurgians i metges de referència per garantir una recuperació segura i eficient. Post-operatori de genoll, maluc, espatlla i columna.`,es:`Trabajamos con cirujanos y médicos de referencia para garantizar una recuperación segura y eficiente. Post-operatorio de rodilla, cadera, hombro y columna.`},
+    "svc3.title":{ca:`Entrenament`,es:`Entrenamiento`},
+    "svc3.text":{ca:`Programes de força i entrenament funcional dissenyats per especialistes en rendiment i salut.`,es:`Programas de fuerza y entrenamiento funcional diseñados por especialistas en rendimiento y salud.`},
+    "svc3.extra":{ca:`Ideal per a esportistes que volen millorar el rendiment, persones que busquen posar-se en forma o pacients en fase de readaptació després d'una lesió.`,es:`Ideal para deportistas que quieren mejorar su rendimiento, personas que buscan ponerse en forma o pacientes en fase de readaptación tras una lesión.`},
+    "svc4.title":{ca:`Podologia`,es:`Podología`},
+    "svc4.text":{ca:`Estudi biomecànic, plantilles personalitzades i tractament integral del peu.`,es:`Estudio biomecánico, plantillas personalizadas y tratamiento integral del pie.`},
+    "svc4.extra":{ca:`Anàlisi del trepitjar, plantilles fetes a mida, tractament de patologies del peu i seguiment esportiu per millorar la teva mecànica de moviment.`,es:`Análisis de la pisada, plantillas a medida, tratamiento de patologías del pie y seguimiento deportivo para mejorar tu mecánica de movimiento.`},
+    "svc5.title":{ca:`Massatges terapèutics`,es:`Masajes terapéuticos`},
+    "svc5.text":{ca:`Massatge descontracturant d'esquena, massatge esportiu i tècniques de relaxació muscular profunda.`,es:`Masaje descontracturante de espalda, masaje deportivo y técnicas de relajación muscular profunda.`},
+    "svc5.extra":{ca:`Sessions de 30 o 60 minuts adaptades a les teves necessitats. Especialment indicat per a contractures, estrès muscular, recuperació post-entrenament i benestar general.`,es:`Sesiones de 30 o 60 minutos adaptadas a tus necesidades. Especialmente indicado para contracturas, estrés muscular, recuperación post-entrenamiento y bienestar general.`},
+
+    "about.eyebrow":{ca:`02 / El centre`,es:`02 / El centro`},
+    "about.h2":{ca:`Un centre on la <span class="accent">ciència</span> i el cuidat es troben.`,es:`Un centro donde la <span class="accent">ciencia</span> y el cuidado se encuentran.`},
+    "about.p1":{ca:`A Movement Lab Bcn portem més de 7 anys ajudant persones a recuperar-se i millorar la seva qualitat de vida. El nostre enfocament combina l'evidència científica amb el tracte personalitzat que mereix cada pacient.`,es:`En Movement Lab Bcn llevamos más de 7 años ayudando a personas a recuperarse y mejorar su calidad de vida. Nuestro enfoque combina la evidencia científica con el trato personalizado que merece cada paciente.`},
+    "about.p2":{ca:`Comptem amb equipament d'última generació i un equip en formació constant, sempre compromès amb els millors resultats.`,es:`Contamos con equipamiento de última generación y un equipo en formación constante, siempre comprometido con los mejores resultados.`},
+    "diff1.h4":{ca:`Tractament personalitzat`,es:`Tratamiento personalizado`},
+    "diff1.p":{ca:`Cada pacient rep un pla adaptat als seus objectius i condició física.`,es:`Cada paciente recibe un plan adaptado a sus objetivos y condición física.`},
+    "diff2.h4":{ca:`Evidència científica`,es:`Evidencia científica`},
+    "diff2.p":{ca:`Apliquem tècniques amb suport clínic i actualització constant.`,es:`Aplicamos técnicas con respaldo clínico y actualización constante.`},
+    "diff3.h4":{ca:`Equip multidisciplinar`,es:`Equipo multidisciplinar`},
+    "diff3.p":{ca:`Fisioterapeutes i preparadors treballant de manera coordinada.`,es:`Fisioterapeutas y preparadores trabajando de forma coordinada.`},
+    "diff4.h4":{ca:`Seguiment continu`,es:`Seguimiento continuo`},
+    "diff4.p":{ca:`T'acompanyem en cada etapa de la teva recuperació, sense presses.`,es:`Te acompañamos en cada etapa de tu recuperación, sin prisas.`},
+
+    "team.eyebrow":{ca:`03 / Equip`,es:`03 / Equipo`},
+    "team.h2":{ca:`Professionals <span class="accent">compromesos</span> amb la teva salut.`,es:`Profesionales <span class="accent">comprometidos</span> con tu salud.`},
+    "team.lead":{ca:`Un equip multidisciplinar de fisioterapeutes i preparadors físics amb àmplia experiència i formació especialitzada.`,es:`Un equipo multidisciplinar de fisioterapeutas y preparadores físicos con amplia experiencia y formación especializada.`},
+    "team1.role":{ca:`Fisio · Directora`,es:`Fisio · Directora`},
+    "team1.bio":{ca:`Especialista en fisioteràpia musculoesquelètica i neurològica. Màster en Teràpia Manual Ortopèdica.`,es:`Especialista en fisioterapia musculoesquelética y neurológica. Máster en Terapia Manual Ortopédica.`},
+    "team2.role":{ca:`Fisio · Esportiu`,es:`Fisio · Deportivo`},
+    "team2.bio":{ca:`Expert en lesions esportives i readaptació. Col·labora amb clubs i esportistes de competició.`,es:`Experto en lesiones deportivas y readaptación. Colabora con clubs y deportistas de competición.`},
+    "team3.role":{ca:`Fisio · Sòl Pelvià`,es:`Fisio · Suelo Pélvico`},
+    "team3.bio":{ca:`Especialitzada en fisioteràpia pèlvica, embaràs i postpart. Formació en uroginecologia.`,es:`Especializada en fisioterapia pélvica, embarazo y postparto. Formación en uroginecología.`},
+    "team4.role":{ca:`Preparador físic`,es:`Preparador físico`},
+    "team4.bio":{ca:`Llicenciat en CCAFD. Especialista en entrenament funcional, força i readaptació física.`,es:`Licenciado en CCAFD. Especialista en entrenamiento funcional, fuerza y readaptación física.`},
+    "team5.role":{ca:`Fisio · Neurològica`,es:`Fisio · Neurológica`},
+    "team5.bio":{ca:`Especialista en neurorehabilitació. Tècnica Bobath i tractament de patologies neurològiques.`,es:`Especialista en neurorrehabilitación. Técnica Bobath y tratamiento de patologías neurológicas.`},
+    "team6.role":{ca:`Fisio · Massatges`,es:`Fisio · Masajes`},
+    "team6.bio":{ca:`Especialista en massoteràpia, drenatge limfàtic i tècniques de relaxació terapèutica.`,es:`Especialista en masoterapia, drenaje linfático y técnicas de relajación terapéutica.`},
+
+    "testi.eyebrow":{ca:`04 / Testimonis`,es:`04 / Testimonios`},
+    "testi.h2":{ca:`El que diuen els <span class="accent">nostres pacients.</span>`,es:`Lo que dicen <span class="accent">nuestros pacientes.</span>`},
+    "testi.lead":{ca:`Més de 2.500 pacients han confiat en nosaltres. Aquestes són algunes de les seves històries.`,es:`Más de 2.500 pacientes han confiado en nosotros. Estas son algunas de sus historias.`},
+
+    "loc.eyebrow":{ca:`05 / Contacte`,es:`05 / Contacto`},
+    "loc.h2":{ca:`Vine a <span class="accent">visitar-nos.</span>`,es:`Ven a <span class="accent">visitarnos.</span>`},
+    "loc.dt_address":{ca:`Adreça`,es:`Dirección`},
+    "loc.address_sub":{ca:`Horta-Guinardó · 08035 Barcelona`,es:`Horta-Guinardó · 08035 Barcelona`},
+    "loc.dt_phone":{ca:`Telèfon`,es:`Teléfono`},
+    "loc.phone_sub":{ca:`També per WhatsApp`,es:`También por WhatsApp`},
+    "loc.dt_email":{ca:`Email`,es:`Email`},
+    "loc.dt_hours":{ca:`Horari`,es:`Horario`},
+    "loc.hours":{ca:`Dilluns – Divendres · 8:00 – 21:00<span>Dissabte i diumenge: tancat</span>`,es:`Lunes – Viernes · 8:00 – 21:00<span>Sábado y domingo: cerrado</span>`},
+
+    "cta.h2":{ca:`Comença la teva <span class="accent">recuperació</span> avui.`,es:`Empieza tu <span class="accent">recuperación</span> hoy.`},
+
+    "foot.brand_p":{ca:`El teu centre de referència en fisioteràpia, entrenament i podologia a Barcelona. Gestió activa del dolor i lesió, humanitzant la salut i el rendiment.`,es:`Tu centro de referencia en fisioterapia, entrenamiento y podología en Barcelona. Gestión activa del dolor y la lesión, humanizando la salud y el rendimiento.`},
+    "foot.serveis_h5":{ca:`/ Serveis`,es:`/ Servicios`},
+    "foot.massatges":{ca:`Massatges`,es:`Masajes`},
+    "foot.centre_h5":{ca:`/ Centre`,es:`/ Centro`},
+    "foot.about":{ca:`Sobre nosaltres`,es:`Sobre nosotros`},
+    "foot.team":{ca:`L'equip`,es:`El equipo`},
+    "foot.directions":{ca:`Com arribar`,es:`Cómo llegar`},
+    "foot.contacte_h5":{ca:`/ Contacte`,es:`/ Contacto`}
+  };
+
+  const toggleBtn=document.getElementById('langToggle');
+  function applyLang(lang){
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const dict=I18N[el.getAttribute('data-i18n')];
+      if(dict && dict[lang]!=null) el.innerHTML=dict[lang];
+    });
+    document.documentElement.setAttribute('lang',lang);
+    splitHeadline();          // re-wrap words so the rise animation replays
+    buildTestimonials(lang);  // rebuild marquee in the chosen language
+    toggleBtn.querySelectorAll('[data-lang]').forEach(s=>{
+      s.classList.toggle('on', s.getAttribute('data-lang')===lang);
+    });
+    try{localStorage.setItem('mlb_lang',lang);}catch(e){}
+  }
+
+  let curLang='ca';
+  try{const saved=localStorage.getItem('mlb_lang'); if(saved==='ca'||saved==='es') curLang=saved;}catch(e){}
+  applyLang(curLang);
+
+  toggleBtn.addEventListener('click',()=>{
+    curLang = curLang==='ca' ? 'es' : 'ca';
+    applyLang(curLang);
+  });
+</script>
+
+<!-- Structured data: helps Google show address, hours, phone & rating -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Physiotherapy",
+  "name": "Movement Lab Bcn",
+  "description": "Centre de fisioteràpia, entrenament i podologia a Barcelona. Gestió activa del dolor i lesió, humanitzant la salut i el rendiment.",
+  "url": "https://www.movementlabbcn.com/",
+  "logo": "https://www.movementlabbcn.com/logo-movement.jpg",
+  "image": "https://www.movementlabbcn.com/logo-movement.jpg",
+  "telephone": "+34634249673",
+  "email": "info@movementlabbcn.com",
+  "priceRange": "€€",
+  "foundingDate": "2018",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Carrer d'Angel Marques, 14-18",
+    "addressLocality": "Barcelona",
+    "addressRegion": "Horta-Guinardó",
+    "postalCode": "08035",
+    "addressCountry": "ES"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 41.43196679323026,
+    "longitude": 2.14060977514105
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "08:00",
+      "closes": "21:00"
+    }
+  ],
+  "sameAs": []
+}
+</script>
 </body>
 </html>
